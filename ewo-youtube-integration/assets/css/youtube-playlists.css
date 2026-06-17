@@ -1,0 +1,123 @@
+.ewo-youtube-playlists {
+	background:
+		linear-gradient(135deg, rgba(215, 168, 75, 0.10), transparent 34%),
+		linear-gradient(180deg, #071426 0%, #10233d 100%);
+	border-block: 1px solid rgba(216, 224, 234, 0.18);
+	color: #eef4fb;
+	padding: clamp(40px, 6vw, 72px) 0;
+}
+
+.ewo-youtube-playlists__header,
+.ewo-youtube-playlists__grid {
+	margin-inline: auto;
+	max-width: 1180px;
+	width: min(100% - 32px, 1180px);
+}
+
+.ewo-youtube-playlists__header {
+	margin-bottom: 28px;
+}
+
+.ewo-youtube-playlists__kicker {
+	color: #d7a84b;
+	font-size: 0.78rem;
+	font-weight: 800;
+	letter-spacing: 0.12em;
+	margin: 0 0 8px;
+	text-transform: uppercase;
+}
+
+.ewo-youtube-playlists__header h2 {
+	color: #ffffff;
+	font-size: clamp(1.7rem, 3vw, 2.45rem);
+	line-height: 1.08;
+	margin: 0;
+}
+
+.ewo-youtube-playlists__grid {
+	display: grid;
+	gap: 18px;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.ewo-youtube-playlists__card {
+	background: rgba(16, 35, 61, 0.9);
+	border: 1px solid rgba(216, 224, 234, 0.18);
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+}
+
+.ewo-youtube-playlists__thumb {
+	aspect-ratio: 16 / 9;
+	background: #071426;
+	border-bottom: 1px solid rgba(216, 224, 234, 0.18);
+	overflow: hidden;
+}
+
+.ewo-youtube-playlists__thumb img {
+	display: block;
+	height: 100%;
+	object-fit: cover;
+	width: 100%;
+}
+
+.ewo-youtube-playlists__placeholder {
+	background:
+		linear-gradient(135deg, rgba(215, 168, 75, 0.28), transparent 42%),
+		linear-gradient(180deg, rgba(0, 163, 255, 0.14), rgba(7, 20, 38, 0.96));
+	display: block;
+	height: 100%;
+	width: 100%;
+}
+
+.ewo-youtube-playlists__body {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+	padding: 18px;
+}
+
+.ewo-youtube-playlists__body h3 {
+	color: #ffffff;
+	font-size: 1.18rem;
+	line-height: 1.28;
+	margin: 0 0 10px;
+}
+
+.ewo-youtube-playlists__body p {
+	color: #aebbcc;
+	font-size: 0.95rem;
+	line-height: 1.55;
+	margin: 0 0 20px;
+}
+
+.ewo-youtube-playlists__button {
+	align-self: flex-start;
+	background: #d7a84b;
+	border: 1px solid #d7a84b;
+	color: #071426;
+	font-weight: 800;
+	margin-top: auto;
+	padding: 10px 16px;
+	text-decoration: none;
+}
+
+.ewo-youtube-playlists__button:hover,
+.ewo-youtube-playlists__button:focus {
+	background: #ffffff;
+	border-color: #ffffff;
+	color: #071426;
+}
+
+@media (max-width: 900px) {
+	.ewo-youtube-playlists__grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}
+
+@media (max-width: 560px) {
+	.ewo-youtube-playlists__grid {
+		grid-template-columns: 1fr;
+	}
+}
