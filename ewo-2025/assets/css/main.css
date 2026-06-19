@@ -1,1 +1,584 @@
-/* Reserved for theme-specific component styles. */
+/*
+ * EWO 2025 — Homepage V1 component styles.
+ * Loaded after style.css, so equal-specificity rules here win by source order.
+ */
+
+/* ============================================================
+ * 1. Typography scale + vertical density (reduce oversized headings)
+ * ============================================================ */
+.ewo-hero h1 {
+	font-size: clamp(2.3rem, 5vw, 3.9rem);
+	max-width: 18ch;
+}
+
+.ewo-hero {
+	min-height: clamp(500px, 68vh, 680px);
+}
+
+.ewo-hero__inner {
+	padding: clamp(60px, 8vh, 104px) 0 clamp(44px, 6vh, 80px);
+}
+
+.ewo-section {
+	padding: clamp(40px, 5vw, 72px) 0;
+}
+
+.ewo-section__header {
+	margin-bottom: 22px;
+}
+
+.ewo-section h2 {
+	font-size: clamp(1.5rem, 2.8vw, 2.6rem);
+	line-height: 1.14;
+}
+
+.ewo-section__header--analysis h2 {
+	font-size: clamp(1.4rem, 2.2vw, 2rem);
+}
+
+.ewo-follow-section h2 {
+	font-size: clamp(1.5rem, 2.6vw, 2.3rem);
+}
+
+@media (max-width: 620px) {
+	.ewo-hero h1 {
+		font-size: clamp(2rem, 10vw, 2.9rem);
+	}
+}
+
+/* ============================================================
+ * 2. Featured Analysis + Strategic Playlists
+ *    Reuse the plugin carousels but rename via our own headers.
+ * ============================================================ */
+.site-main--home .ewo-youtube-marquee__header,
+.site-main--home .ewo-youtube-playlists__header {
+	display: none;
+}
+
+.ewo-home-featured .ewo-youtube-marquee,
+.ewo-home-playlists .ewo-youtube-playlists {
+	margin: 0;
+	max-width: none;
+	padding: 0;
+	width: 100%;
+}
+
+/* ============================================================
+ * 3. The EWO Method — two-column
+ * ============================================================ */
+.ewo-method-v1__grid {
+	align-items: start;
+	display: grid;
+	gap: clamp(24px, 4vw, 56px);
+	grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+
+.ewo-method-v1__lede {
+	color: var(--ewo-white);
+	font-family: Georgia, "Times New Roman", serif;
+	font-size: clamp(1.2rem, 2vw, 1.55rem);
+	line-height: 1.32;
+	margin: 0 0 18px;
+}
+
+.ewo-method-v1__note {
+	color: var(--ewo-gold);
+	font-weight: 800;
+	letter-spacing: 0.04em;
+	margin: 22px 0 0;
+}
+
+.ewo-method-v1__flow {
+	background: linear-gradient(180deg, rgba(16, 35, 61, 0.42), rgba(5, 14, 27, 0.72));
+	border: 1px solid var(--ewo-border);
+	border-radius: 8px;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.ewo-method-v1__step {
+	align-items: baseline;
+	display: flex;
+	gap: 16px;
+	padding: 16px 22px;
+}
+
+.ewo-method-v1__step + .ewo-method-v1__step {
+	border-top: 1px solid rgba(216, 224, 234, 0.12);
+}
+
+.ewo-method-v1__num {
+	color: var(--ewo-gold);
+	flex: 0 0 auto;
+	font-size: 0.8rem;
+	font-weight: 900;
+	letter-spacing: 0.08em;
+}
+
+.ewo-method-v1__step-title {
+	color: var(--ewo-white);
+	display: block;
+	font-family: Georgia, "Times New Roman", serif;
+	font-size: 1.15rem;
+	line-height: 1.2;
+}
+
+.ewo-method-v1__step-desc {
+	color: var(--ewo-muted);
+	display: block;
+	font-size: 0.92rem;
+	margin-top: 2px;
+}
+
+@media (max-width: 900px) {
+	.ewo-method-v1__grid {
+		grid-template-columns: 1fr;
+	}
+}
+
+/* ============================================================
+ * 4. Community Posts — compact cards
+ * ============================================================ */
+.ewo-community-grid {
+	display: grid;
+	gap: 18px;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.ewo-community-card {
+	background: linear-gradient(180deg, rgba(16, 35, 61, 0.7), rgba(5, 14, 27, 0.9));
+	border: 1px solid var(--ewo-border);
+	border-radius: 8px;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	padding: 18px 20px;
+}
+
+.ewo-community-card__meta {
+	color: var(--ewo-muted);
+	display: flex;
+	font-size: 0.76rem;
+	gap: 10px;
+	justify-content: space-between;
+	letter-spacing: 0.04em;
+	margin: 0;
+}
+
+.ewo-community-card__handle {
+	color: var(--ewo-gold);
+	font-weight: 800;
+}
+
+.ewo-community-card__title {
+	color: var(--ewo-white);
+	font-family: Georgia, "Times New Roman", serif;
+	font-size: 1.1rem;
+	line-height: 1.25;
+	margin: 0;
+}
+
+.ewo-community-card__text {
+	color: var(--ewo-silver);
+	font-size: 0.95rem;
+	line-height: 1.55;
+	margin: 0;
+}
+
+.ewo-community-card__link {
+	color: var(--ewo-gold);
+	font-size: 0.76rem;
+	font-weight: 800;
+	letter-spacing: 0.06em;
+	margin-top: auto;
+	text-decoration: none;
+	text-transform: uppercase;
+}
+
+@media (max-width: 900px) {
+	.ewo-community-grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}
+
+@media (max-width: 600px) {
+	.ewo-community-grid {
+		grid-template-columns: 1fr;
+	}
+}
+
+/* ============================================================
+ * 5. Strategic Domains — headline feed with ranking scores
+ * ============================================================ */
+.ewo-domains-grid .ewo-domain-card {
+	min-height: 0;
+}
+
+.ewo-domain-card p.ewo-domain-card__desc {
+	color: var(--ewo-muted);
+	font-size: 0.9rem;
+	line-height: 1.5;
+	margin-bottom: 16px;
+}
+
+.ewo-domain-feed {
+	display: grid;
+	gap: 9px;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.ewo-domain-feed__item {
+	align-items: baseline;
+	display: flex;
+	font-size: 0.9rem;
+	gap: 10px;
+	line-height: 1.4;
+}
+
+.ewo-domain-feed__score {
+	color: var(--ewo-gold);
+	flex: 0 0 auto;
+	font-size: 0.82rem;
+	font-variant-numeric: tabular-nums;
+	font-weight: 900;
+}
+
+.ewo-domain-feed__title {
+	color: var(--ewo-silver);
+	text-decoration: none;
+}
+
+.ewo-domain-feed__title:hover,
+.ewo-domain-feed__title:focus {
+	color: var(--ewo-white);
+}
+
+.ewo-domain-feed__empty {
+	color: var(--ewo-muted);
+	font-size: 0.85rem;
+	font-style: italic;
+	margin: 0;
+}
+
+/* ============================================================
+ * 6. Strategic Predictions — forecast cards
+ * ============================================================ */
+.ewo-predictions-grid {
+	display: grid;
+	gap: 18px;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.ewo-prediction-card {
+	background: linear-gradient(180deg, rgba(16, 35, 61, 0.72), rgba(5, 14, 27, 0.9));
+	border: 1px solid var(--ewo-border);
+	border-radius: 8px;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	overflow: hidden;
+	padding: 22px 24px 22px 26px;
+	position: relative;
+	transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+}
+
+.ewo-prediction-card::before {
+	background: linear-gradient(180deg, var(--ewo-gold), rgba(0, 163, 255, 0.6));
+	bottom: 0;
+	content: "";
+	left: 0;
+	position: absolute;
+	top: 0;
+	width: 3px;
+}
+
+.ewo-prediction-card:hover {
+	border-color: rgba(0, 163, 255, 0.4);
+	box-shadow: 0 18px 50px rgba(0, 163, 255, 0.12);
+	transform: translateY(-3px);
+}
+
+.ewo-prediction-card__tag {
+	color: var(--ewo-gold);
+	font-size: 0.72rem;
+	font-weight: 800;
+	letter-spacing: 0.12em;
+	margin: 0;
+	text-transform: uppercase;
+}
+
+.ewo-prediction-card__title {
+	color: var(--ewo-white);
+	font-family: Georgia, "Times New Roman", serif;
+	font-size: 1.2rem;
+	line-height: 1.2;
+	margin: 0;
+}
+
+.ewo-prediction-card__title a {
+	color: inherit;
+	text-decoration: none;
+}
+
+.ewo-prediction-card__title a:hover {
+	color: var(--ewo-gold);
+}
+
+.ewo-prediction-card__text {
+	color: var(--ewo-muted);
+	font-size: 0.92rem;
+	line-height: 1.55;
+	margin: 0;
+}
+
+@media (max-width: 900px) {
+	.ewo-predictions-grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}
+
+@media (max-width: 600px) {
+	.ewo-predictions-grid {
+		grid-template-columns: 1fr;
+	}
+}
+
+/* ============================================================
+ * 7. Latest Analysis — featured-large + smaller grid
+ * ============================================================ */
+.ewo-analysis-grid {
+	display: grid;
+	gap: 20px;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.ewo-analysis-grid .ewo-briefing-card--featured {
+	grid-column: span 2;
+	grid-row: span 2;
+}
+
+.ewo-analysis-grid .ewo-briefing-card--featured h3 {
+	font-size: clamp(1.5rem, 2.4vw, 2.1rem);
+}
+
+@media (max-width: 980px) {
+	.ewo-analysis-grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	.ewo-analysis-grid .ewo-briefing-card--featured {
+		grid-column: span 2;
+		grid-row: auto;
+	}
+}
+
+@media (max-width: 600px) {
+	.ewo-analysis-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.ewo-analysis-grid .ewo-briefing-card--featured {
+		grid-column: auto;
+	}
+}
+
+/* ============================================================
+ * 8. Connect With EWO — platform cards with follower counts
+ * ============================================================ */
+.ewo-connect-grid {
+	display: grid;
+	gap: 16px;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.ewo-connect-card {
+	align-items: flex-start;
+	background: linear-gradient(180deg, rgba(16, 35, 61, 0.74), rgba(5, 14, 27, 0.92));
+	border: 1px solid var(--ewo-border);
+	border-radius: 8px;
+	color: var(--ewo-white);
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	min-height: 160px;
+	padding: 22px;
+	text-decoration: none;
+	transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+a.ewo-connect-card:hover,
+a.ewo-connect-card:focus-visible {
+	border-color: rgba(215, 168, 75, 0.5);
+	box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
+	transform: translateY(-2px);
+}
+
+.ewo-connect-card--disabled {
+	cursor: default;
+	opacity: 0.6;
+}
+
+.ewo-connect-card__icon {
+	align-items: center;
+	border-radius: 10px;
+	display: inline-flex;
+	height: 46px;
+	justify-content: center;
+	width: 46px;
+}
+
+.ewo-connect-card__icon svg {
+	fill: currentColor;
+	height: 26px;
+	width: 26px;
+}
+
+.ewo-connect-card__name {
+	font-size: 1.05rem;
+	font-weight: 900;
+}
+
+.ewo-connect-card__count {
+	color: var(--ewo-gold);
+	font-family: Georgia, "Times New Roman", serif;
+	font-size: 1.4rem;
+	line-height: 1;
+}
+
+.ewo-connect-card__label {
+	color: var(--ewo-muted);
+	font-size: 0.8rem;
+	margin-top: auto;
+}
+
+.ewo-connect-card--youtube .ewo-connect-card__icon {
+	background: rgba(255, 0, 0, 0.13);
+	color: #ff1f1f;
+}
+
+.ewo-connect-card--spotify .ewo-connect-card__icon {
+	background: rgba(30, 215, 96, 0.13);
+	color: #1ed760;
+}
+
+.ewo-connect-card--x .ewo-connect-card__icon {
+	background: rgba(255, 255, 255, 0.1);
+	color: #ffffff;
+}
+
+.ewo-connect-card--substack .ewo-connect-card__icon {
+	background: rgba(255, 103, 26, 0.13);
+	color: #ff671a;
+}
+
+@media (max-width: 900px) {
+	.ewo-connect-grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}
+
+@media (max-width: 520px) {
+	.ewo-connect-grid {
+		grid-template-columns: 1fr;
+	}
+}
+
+/* ============================================================
+ * 9. Book
+ * ============================================================ */
+.ewo-book-v1 {
+	align-items: center;
+	display: grid;
+	gap: clamp(24px, 4vw, 48px);
+	grid-template-columns: 190px minmax(0, 1fr);
+}
+
+.ewo-book-v1__cover {
+	align-items: center;
+	aspect-ratio: 2 / 3;
+	background: linear-gradient(160deg, #10233d, #050e1b);
+	border: 1px solid rgba(215, 168, 75, 0.4);
+	border-radius: 6px;
+	box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4), inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	justify-content: center;
+	max-width: 190px;
+	padding: 20px;
+	text-align: center;
+	width: 100%;
+}
+
+.ewo-book-v1__cover-kicker {
+	color: var(--ewo-gold);
+	font-size: 0.72rem;
+	font-weight: 800;
+	letter-spacing: 0.12em;
+	line-height: 1.3;
+	text-transform: uppercase;
+}
+
+.ewo-book-v1__cover-year {
+	color: var(--ewo-white);
+	font-family: Georgia, "Times New Roman", serif;
+	font-size: 2.6rem;
+	line-height: 1;
+}
+
+.ewo-book-v1__name {
+	color: var(--ewo-gold);
+	font-weight: 800;
+	letter-spacing: 0.04em;
+	margin: 0 0 6px;
+}
+
+@media (max-width: 680px) {
+	.ewo-book-v1 {
+		grid-template-columns: 1fr;
+		justify-items: start;
+	}
+}
+
+/* ============================================================
+ * 10. Footer newsletter band (moved from homepage)
+ * ============================================================ */
+.site-footer__newsletter {
+	align-items: center;
+	border-bottom: 1px solid var(--ewo-border);
+	display: grid;
+	gap: clamp(20px, 3vw, 40px);
+	grid-template-columns: minmax(0, 1fr) auto;
+	padding: clamp(24px, 4vw, 40px) 0;
+}
+
+.site-footer__newsletter-kicker {
+	color: var(--ewo-gold);
+	font-size: 0.74rem;
+	font-weight: 900;
+	letter-spacing: 0.12em;
+	margin: 0 0 8px;
+	text-transform: uppercase;
+}
+
+.site-footer__newsletter-title {
+	color: var(--ewo-white);
+	font-family: Georgia, "Times New Roman", serif;
+	font-size: clamp(1.3rem, 2.2vw, 1.8rem);
+	margin: 0 0 6px;
+}
+
+.site-footer__newsletter-text {
+	color: var(--ewo-muted);
+	margin: 0;
+	max-width: 520px;
+}
+
+@media (max-width: 760px) {
+	.site-footer__newsletter {
+		grid-template-columns: 1fr;
+	}
+}

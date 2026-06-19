@@ -6,12 +6,16 @@
  */
 
 if ( ! defined( 'EWO_THEME_VERSION' ) ) {
-	define( 'EWO_THEME_VERSION', '0.3.1' );
+	define( 'EWO_THEME_VERSION', '0.5.0' );
 }
 
 if ( ! defined( 'EWO_2025_VERSION' ) ) {
 	define( 'EWO_2025_VERSION', EWO_THEME_VERSION );
 }
+
+// Homepage content types and data providers.
+require_once get_template_directory() . '/inc/ewo-content-types.php';
+require_once get_template_directory() . '/inc/ewo-homepage.php';
 
 if ( ! function_exists( 'ewo_2025_setup' ) ) {
 	/**
@@ -237,6 +241,38 @@ function ewo_2025_customize_register( $wp_customize ) {
 			)
 		);
 	}
+
+	// Optional follower / subscriber counts for the homepage "Connect With EWO" cards.
+	$ewo_2025_count_platforms = array(
+		'youtube'  => __( 'YouTube subscribers', 'ewo-2025' ),
+		'spotify'  => __( 'Spotify followers', 'ewo-2025' ),
+		'x'        => __( 'X followers', 'ewo-2025' ),
+		'substack' => __( 'Substack subscribers', 'ewo-2025' ),
+	);
+
+	foreach ( $ewo_2025_count_platforms as $ewo_2025_count_key => $ewo_2025_count_label ) {
+		$ewo_2025_count_setting = 'ewo_2025_' . $ewo_2025_count_key . '_count';
+
+		$wp_customize->add_setting(
+			$ewo_2025_count_setting,
+			array(
+				'default'           => '',
+				'sanitize_callback' => 'sanitize_text_field',
+			)
+		);
+
+		$wp_customize->add_control(
+			$ewo_2025_count_setting,
+			array(
+				'label'       => $ewo_2025_count_label,
+				'section'     => 'ewo_2025_platform_settings',
+				'type'        => 'text',
+				'input_attrs' => array(
+					'placeholder' => '350K',
+				),
+			)
+		);
+	}
 }
 add_action( 'customize_register', 'ewo_2025_customize_register' );
 
@@ -311,4 +347,213 @@ function ewo_2025_platform_links( $platform_keys = array(), $class_name = 'ewo-p
 		<?php endforeach; ?>
 	</div>
 	<?php
+}
+
+/**
+ * Replace the default "Category: Analysis" archive title with a branded one.
+ *
+ * @param string $title Default archive title.
+ * @return string
+ */
+function ewo_2025_archive_title( $title ) {
+	if ( is_category( 'analysis' ) ) {
+		return esc_html__( 'Latest Analysis', 'ewo-2025' );
+	}
+
+	return $title;
+}
+add_filter( 'get_the_archive_title', 'ewo_2025_archive_title' );
+
+// Drop the "Category:" / "Tag:" etc. prefix from all archive titles.
+add_filter( 'get_the_archive_title_prefix', '__return_empty_string' );
+
+/**
+ * Resolve the best card thumbnail URL for a post.
+ *
+ * Featured image first, then the first valid image found in the content,
+ * then the EWO fallback image. Never returns an empty string.
+ *
+ * @param int|WP_Post|null $post Post.
+ * @return string
+ */
+function ewo_2025_card_thumbnail_url( $post = null ) {
+	$post = get_post( $post );
+
+	if ( $post ) {
+		if ( has_post_thumbnail( $post ) ) {
+			$featured = get_the_post_thumbnail_url( $post, 'large' );
+			if ( ewo_2025_is_valid_image_url( $featured ) ) {
+				return $featured;
+			}
+		}
+
+		$from_content = ewo_2025_first_content_image_url( $post->post_content );
+		if ( '' !== $from_content ) {
+			return $from_content;
+		}
+	}
+
+	return ewo_2025_fallback_image_url();
+}
+
+/**
+ * EWO fallback card image URL.
+ *
+ * @return string
+ */
+function ewo_2025_fallback_image_url() {
+	return get_template_directory_uri() . '/assets/images/ewo-banner.png';
+}
+
+/**
+ * Extract the first valid image URL from post content.
+ *
+ * Supports src, data-src/data-lazy-src/data-original, srcset, and Substack CDN URLs.
+ *
+ * @param string $content Post content.
+ * @return string
+ */
+function ewo_2025_first_content_image_url( $content ) {
+	if ( ! is_string( $content ) || false === stripos( $content, '<img' ) ) {
+		return '';
+	}
+
+	if ( ! preg_match_all( '/<img\b[^>]*>/i', $content, $tags ) ) {
+		return '';
+	}
+
+	foreach ( $tags[0] as $tag ) {
+		foreach ( array( 'data-src', 'data-lazy-src', 'data-original' ) as $attr ) {
+			if ( preg_match( '/\b' . preg_quote( $attr, '/' ) . '\s*=\s*["\']([^"\']+)["\']/i', $tag, $m ) && ewo_2025_is_valid_image_url( $m[1] ) ) {
+				return trim( $m[1] );
+			}
+		}
+
+		if ( preg_match( '/\bsrcset\s*=\s*["\']([^"\']+)["\']/i', $tag, $m ) ) {
+			$first = explode( ',', $m[1] );
+			$first = trim( explode( ' ', trim( $first[0] ) )[0] );
+			if ( ewo_2025_is_valid_image_url( $first ) ) {
+				return $first;
+			}
+		}
+
+		if ( preg_match( '/\bsrc\s*=\s*["\']([^"\']+)["\']/i', $tag, $m ) && ewo_2025_is_valid_image_url( $m[1] ) ) {
+			return trim( $m[1] );
+		}
+	}
+
+	return '';
+}
+
+/**
+ * Validate an image URL: http(s) and either a real image extension or a known image CDN.
+ *
+ * @param string $url URL.
+ * @return bool
+ */
+function ewo_2025_is_valid_image_url( $url ) {
+	$url = trim( (string) $url );
+
+	if ( '' === $url || 0 === stripos( $url, 'data:' ) ) {
+		return false;
+	}
+
+	if ( ! preg_match( '#^https?://#i', $url ) ) {
+		return false;
+	}
+
+	if ( preg_match( '#\.(jpe?g|png|gif|webp|avif)(\?.*)?$#i', $url ) ) {
+		return true;
+	}
+
+	$cdns = array( 'substackcdn.com', 'substack-post-media', 'amazonaws.com', 'bucketeer-', 'cdn.substack.com', 'ytimg.com', 'img.youtube.com' );
+	foreach ( $cdns as $cdn ) {
+		if ( false !== stripos( $url, $cdn ) ) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+if ( ! function_exists( 'ewo_2025_substack_source_url' ) ) {
+	/**
+	 * Return the original imported Substack URL for a post.
+	 *
+	 * @param int|WP_Post|null $post Post.
+	 * @return string
+	 */
+	function ewo_2025_substack_source_url( $post = null ) {
+		$post = get_post( $post );
+
+		if ( ! $post ) {
+			return '';
+		}
+
+		foreach ( array( '_ewo_rss_article_url', 'feedzy_item_url', '_ewo_rss_source_url', 'ewo_rss_source_url', 'ewo_original_url', 'original_url', 'source_url' ) as $meta_key ) {
+			$url = trim( (string) get_post_meta( $post->ID, $meta_key, true ) );
+
+			if ( $url && false !== stripos( $url, 'substack.com' ) ) {
+				return esc_url_raw( $url );
+			}
+		}
+
+		return '';
+	}
+}
+
+if ( ! function_exists( 'ewo_2025_subscriber_preview_text' ) ) {
+	/**
+	 * Return preview text without Substack's placeholder "Read more" copy.
+	 *
+	 * @param int|WP_Post|null $post Post.
+	 * @return string
+	 */
+	function ewo_2025_subscriber_preview_text( $post = null ) {
+		$post = get_post( $post );
+
+		if ( ! $post ) {
+			return '';
+		}
+
+		$content = wp_strip_all_tags( strip_shortcodes( $post->post_content ) );
+		$content = preg_replace( '/\bRead more\b/i', '', $content );
+		$content = preg_replace( '/\s+/', ' ', trim( (string) $content ) );
+
+		return $content;
+	}
+}
+
+if ( ! function_exists( 'ewo_2025_is_subscriber_only_post' ) ) {
+	/**
+	 * Detect subscriber-only Substack imports.
+	 *
+	 * @param int|WP_Post|null $post Post.
+	 * @return bool
+	 */
+	function ewo_2025_is_subscriber_only_post( $post = null ) {
+		$post = get_post( $post );
+
+		if ( ! $post ) {
+			return false;
+		}
+
+		// Prefer the flag detected at import time (no runtime guessing).
+		$flag = get_post_meta( $post->ID, '_ewo_rss_is_subscriber_only', true );
+		if ( '' !== $flag ) {
+			return '1' === $flag;
+		}
+
+		if ( ! ewo_2025_substack_source_url( $post ) ) {
+			return false;
+		}
+
+		$text = wp_strip_all_tags( strip_shortcodes( $post->post_content ) );
+
+		if ( false !== stripos( $text, 'Read more' ) ) {
+			return true;
+		}
+
+		return str_word_count( $text ) <= 80;
+	}
 }

@@ -1,0 +1,21 @@
+/**
+ * EWO RSS Engine — admin styles.
+ */
+
+.ewo-rss-tagline {
+	font-size: 14px;
+	color: #50575e;
+	margin: 4px 0 16px;
+}
+
+.ewo-rss-runall {
+	margin: 12px 0 24px;
+}
+
+.ewo-rss-wrap table.widefat {
+	margin-bottom: 16px;
+}
+
+.ewo-rss-wrap td code {
+	word-break: break-all;
+}
