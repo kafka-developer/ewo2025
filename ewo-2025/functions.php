@@ -6,7 +6,7 @@
  */
 
 if ( ! defined( 'EWO_THEME_VERSION' ) ) {
-	define( 'EWO_THEME_VERSION', '0.3.7' );
+	define( 'EWO_THEME_VERSION', '0.3.8' );
 }
 
 if ( ! defined( 'EWO_2025_VERSION' ) ) {

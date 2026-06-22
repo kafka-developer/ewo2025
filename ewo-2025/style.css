@@ -4,7 +4,7 @@ Theme URI: https://example.com/ewo-2025
 Author: EWO
 Author URI: https://example.com
 Description: A responsive dark navy WordPress theme skeleton with electric blue, silver, white, and gold accents.
-Version: 0.3.7
+Version: 0.3.8
 Requires at least: 6.0
 Tested up to: 6.6
 Requires PHP: 7.4
@@ -1962,15 +1962,27 @@ a.ewo-article-card__more.ewo-substack-button:focus {
 .site-footer__inner--platforms {
 	align-items: stretch;
 	display: grid;
-	gap: clamp(24px, 4vw, 48px);
-	grid-template-columns: minmax(240px, 0.8fr) minmax(420px, 1.2fr);
+	gap: clamp(22px, 3.5vw, 44px);
+	grid-template-columns: minmax(230px, 0.82fr) 1px minmax(0, 1.3fr);
 	padding: clamp(30px, 5vw, 54px) 0;
 }
 
-.site-footer__identity {
+.site-footer__brand {
 	align-items: flex-start;
 	display: flex;
-	gap: 16px;
+	flex-direction: column;
+	gap: 14px;
+}
+
+.site-footer__brand .site-footer__name,
+.site-footer__brand .site-footer__tagline {
+	margin: 0;
+}
+
+/* Vertical divider between the brand block and the platform block. */
+.site-footer__divider {
+	background: linear-gradient(180deg, transparent, var(--ewo-border) 12%, var(--ewo-border) 88%, transparent);
+	width: 1px;
 }
 
 .site-footer__logo {
@@ -2022,10 +2034,18 @@ a.ewo-article-card__more.ewo-substack-button:focus {
 	text-transform: uppercase;
 }
 
+.site-footer__platforms-subtitle {
+	color: var(--ewo-muted);
+	font-size: 0.9rem;
+	line-height: 1.5;
+	margin: 0 0 16px;
+	max-width: 460px;
+}
+
 .site-footer__platform-grid {
 	display: grid;
 	gap: 12px;
-	grid-template-columns: repeat(3, minmax(0, 1fr));
+	grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
 }
 
 .ewo-footer-platform {
@@ -2131,19 +2151,126 @@ a.ewo-footer-platform:focus-visible {
 	color: #ff9900;
 }
 
+/* Small square icon-only social buttons (display_location = footer_icon). */
+.site-footer__social-row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+	margin-top: 2px;
+}
+
+.ewo-footer-icon {
+	align-items: center;
+	background: rgba(16, 35, 61, 0.6);
+	border: 1px solid rgba(216, 224, 234, 0.16);
+	border-radius: 10px;
+	color: var(--ewo-silver);
+	display: inline-flex;
+	height: 40px;
+	justify-content: center;
+	transition: border-color 160ms ease, box-shadow 160ms ease, color 160ms ease, transform 160ms ease;
+	width: 40px;
+}
+
+.ewo-footer-icon__glyph {
+	display: inline-flex;
+}
+
+.ewo-footer-icon__glyph svg {
+	display: block;
+	fill: currentColor;
+	height: 18px;
+	width: 18px;
+}
+
+.ewo-footer-icon:hover,
+.ewo-footer-icon:focus-visible {
+	border-color: rgba(0, 163, 255, 0.5);
+	box-shadow: 0 0 20px rgba(0, 163, 255, 0.2);
+	color: var(--ewo-white);
+	transform: translateY(-2px);
+}
+
+.ewo-footer-icon--youtube:hover,
+.ewo-footer-icon--youtube:focus-visible {
+	border-color: rgba(255, 31, 31, 0.55);
+	box-shadow: 0 0 20px rgba(255, 31, 31, 0.22);
+	color: #ff4d4d;
+}
+
+.ewo-footer-icon--telegram:hover,
+.ewo-footer-icon--telegram:focus-visible {
+	border-color: rgba(42, 171, 238, 0.55);
+	box-shadow: 0 0 20px rgba(42, 171, 238, 0.22);
+	color: #2aabee;
+}
+
+.ewo-footer-icon--linkedin:hover,
+.ewo-footer-icon--linkedin:focus-visible {
+	border-color: rgba(56, 132, 214, 0.6);
+	box-shadow: 0 0 20px rgba(56, 132, 214, 0.28);
+	color: #3884d6;
+}
+
+.ewo-footer-icon--email:hover,
+.ewo-footer-icon--email:focus-visible {
+	border-color: rgba(215, 168, 75, 0.55);
+	box-shadow: 0 0 20px rgba(215, 168, 75, 0.2);
+	color: var(--ewo-gold);
+}
+
+/* Bottom legal links row. */
+.site-footer__legal {
+	align-items: center;
+	border-top: 1px solid var(--ewo-border);
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px 22px;
+	justify-content: space-between;
+	padding: 18px 0;
+}
+
+.site-footer__legal .site-footer__copyright {
+	color: rgba(174, 187, 204, 0.8);
+	font-size: 0.82rem;
+	margin: 0;
+}
+
+.site-footer__legal-links {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px 20px;
+}
+
+.site-footer__legal-link {
+	color: var(--ewo-muted);
+	font-size: 0.82rem;
+	text-decoration: none;
+	transition: color 160ms ease;
+}
+
+.site-footer__legal-link:hover,
+.site-footer__legal-link:focus-visible {
+	color: var(--ewo-gold);
+}
+
 @media (max-width: 980px) {
 	.site-footer__inner--platforms {
 		grid-template-columns: 1fr;
+	}
+
+	.site-footer__divider {
+		display: none;
 	}
 }
 
 @media (max-width: 680px) {
 	.site-footer__platform-grid {
-		grid-template-columns: 1fr;
+		grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
 	}
 
-	.site-footer__identity {
-		flex-direction: column;
+	.site-footer__legal {
+		justify-content: flex-start;
 	}
 }
 /* Videos page hard-coded Media Hub template. */

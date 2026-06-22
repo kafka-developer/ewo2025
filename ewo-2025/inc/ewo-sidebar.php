@@ -230,13 +230,12 @@ function ewo_2025_sidebar_stat_value( $key ) {
  * Follow card — platform links (reuse configured platform URLs).
  */
 function ewo_2025_sidebar_card_follow() {
-	$keys = array( 'youtube', 'substack', 'spotify', 'x', 'rumble', 'amazon_book' );
-	if ( ! ewo_2025_has_platform_links( $keys ) ) {
-		echo '<p class="ewo-sidebar-card__muted">' . esc_html__( 'Configure social links in EWO Settings.', 'ewo-2025' ) . '</p>';
+	if ( empty( ewo_2025_get_platform_surface_links( 'sidecard' ) ) ) {
+		echo '<p class="ewo-sidebar-card__muted">' . esc_html__( 'Enable links for the Side Card in EWO Settings → Social Links.', 'ewo-2025' ) . '</p>';
 		return;
 	}
 	echo '<div class="ewo-sidebar-follow">';
-	ewo_2025_social_links( $keys, 'sidebar' );
+	ewo_2025_render_sidecard_links();
 	echo '</div>';
 }
 
