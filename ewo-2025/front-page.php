@@ -46,6 +46,9 @@ $ewo_2025_videos_url      = $ewo_2025_videos_page ? get_permalink( $ewo_2025_vid
 		</div>
 	</section>
 
+	<div class="ewo-home-layout">
+		<div class="ewo-home-main">
+
 	<?php // 2. FEATURED ANALYSIS — latest YouTube videos (carousel). ?>
 	<?php if ( function_exists( 'ewo_youtube_marquee' ) ) : ?>
 		<section id="featured-analysis" class="ewo-section ewo-home-featured">
@@ -276,6 +279,9 @@ $ewo_2025_videos_url      = $ewo_2025_videos_page ? get_permalink( $ewo_2025_vid
 						$ewo_2025_card_classes .= ' ewo-briefing-card--subscriber';
 					}
 					?>
+					<?php if ( 1 === $ewo_2025_index ) : ?>
+						<div class="ewo-analysis-grid__secondary">
+					<?php endif; ?>
 					<article <?php post_class( $ewo_2025_card_classes ); ?>>
 						<a class="ewo-briefing-card__media" href="<?php the_permalink(); ?>" aria-label="<?php the_title_attribute(); ?>">
 							<?php if ( has_post_thumbnail() ) : ?>
@@ -291,7 +297,10 @@ $ewo_2025_videos_url      = $ewo_2025_videos_page ? get_permalink( $ewo_2025_vid
 							<p class="ewo-card-meta"><span><?php esc_html_e( 'Briefing', 'ewo-2025' ); ?></span><?php echo esc_html( get_the_date() ); ?></p>
 							<h3><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h3>
 							<p><?php echo esc_html( wp_trim_words( $ewo_2025_excerpt, $ewo_2025_featured ? 34 : 18 ) ); ?></p>
-							<?php if ( $ewo_2025_subscriber_only && $ewo_2025_substack_url ) : ?>
+							<?php if ( ! $ewo_2025_featured ) : ?>
+								<a class="ewo-briefing-card__more" href="<?php the_permalink(); ?>"><?php esc_html_e( 'Read More', 'ewo-2025' ); ?> &rarr;</a>
+							<?php endif; ?>
+							<?php if ( $ewo_2025_featured && $ewo_2025_subscriber_only && $ewo_2025_substack_url ) : ?>
 								<a class="ewo-button ewo-button--gold ewo-substack-button" href="<?php echo esc_url( $ewo_2025_substack_url ); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Read on Substack', 'ewo-2025' ); ?> &rarr;</a>
 							<?php endif; ?>
 						</div>
@@ -299,6 +308,9 @@ $ewo_2025_videos_url      = $ewo_2025_videos_page ? get_permalink( $ewo_2025_vid
 					<?php
 					++$ewo_2025_index;
 				endwhile;
+				if ( $ewo_2025_index > 1 ) {
+					echo '</div>'; // Close .ewo-analysis-grid__secondary.
+				}
 				wp_reset_postdata();
 				?>
 			</div>
@@ -391,6 +403,10 @@ $ewo_2025_videos_url      = $ewo_2025_videos_page ? get_permalink( $ewo_2025_vid
 			<?php endif; ?>
 		</div>
 	</section>
+
+		</div><!-- .ewo-home-main -->
+		<?php ewo_2025_sidebar(); ?>
+	</div><!-- .ewo-home-layout -->
 
 </main>
 

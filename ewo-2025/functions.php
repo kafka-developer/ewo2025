@@ -6,7 +6,7 @@
  */
 
 if ( ! defined( 'EWO_THEME_VERSION' ) ) {
-	define( 'EWO_THEME_VERSION', '0.5.0' );
+	define( 'EWO_THEME_VERSION', '0.3.7' );
 }
 
 if ( ! defined( 'EWO_2025_VERSION' ) ) {
@@ -16,6 +16,8 @@ if ( ! defined( 'EWO_2025_VERSION' ) ) {
 // Homepage content types and data providers.
 require_once get_template_directory() . '/inc/ewo-content-types.php';
 require_once get_template_directory() . '/inc/ewo-homepage.php';
+require_once get_template_directory() . '/inc/ewo-social-links.php';
+require_once get_template_directory() . '/inc/ewo-sidebar.php';
 
 if ( ! function_exists( 'ewo_2025_setup' ) ) {
 	/**
@@ -156,198 +158,6 @@ function ewo_2025_admin_bar_theme_version( $wp_admin_bar ) {
 	);
 }
 add_action( 'admin_bar_menu', 'ewo_2025_admin_bar_theme_version', 100 );
-
-/**
- * Return supported EWO platform settings.
- *
- * @return array<string, array<string, string>>
- */
-function ewo_2025_get_platforms() {
-	return array(
-		'youtube'     => array(
-			'label' => __( 'YouTube', 'ewo-2025' ),
-			'short' => __( 'YT', 'ewo-2025' ),
-		),
-		'spotify'     => array(
-			'label' => __( 'Spotify', 'ewo-2025' ),
-			'short' => __( 'SP', 'ewo-2025' ),
-		),
-		'substack'    => array(
-			'label' => __( 'Substack', 'ewo-2025' ),
-			'short' => __( 'SS', 'ewo-2025' ),
-		),
-		'x'           => array(
-			'label' => __( 'X', 'ewo-2025' ),
-			'short' => __( 'X', 'ewo-2025' ),
-		),
-		'rumble'      => array(
-			'label' => __( 'Rumble', 'ewo-2025' ),
-			'short' => __( 'RB', 'ewo-2025' ),
-		),
-		'tiktok'      => array(
-			'label' => __( 'TikTok', 'ewo-2025' ),
-			'short' => __( 'TK', 'ewo-2025' ),
-		),
-		'amazon_book' => array(
-			'label' => __( 'Amazon Book', 'ewo-2025' ),
-			'short' => __( 'BK', 'ewo-2025' ),
-		),
-		'newsletter'  => array(
-			'label' => __( 'Newsletter', 'ewo-2025' ),
-			'short' => __( 'NL', 'ewo-2025' ),
-		),
-	);
-}
-
-/**
- * Register EWO platform URL settings in the Customizer.
- *
- * @param WP_Customize_Manager $wp_customize Customizer object.
- */
-function ewo_2025_customize_register( $wp_customize ) {
-	$wp_customize->add_section(
-		'ewo_2025_platform_settings',
-		array(
-			'title'       => esc_html__( 'EWO Platform Settings', 'ewo-2025' ),
-			'description' => esc_html__( 'Add platform URLs used across the header, footer, homepage CTAs, and social link areas. Empty URLs are hidden.', 'ewo-2025' ),
-			'priority'    => 160,
-		)
-	);
-
-	foreach ( ewo_2025_get_platforms() as $ewo_2025_key => $ewo_2025_platform ) {
-		$ewo_2025_setting = 'ewo_2025_' . $ewo_2025_key . '_url';
-
-		$wp_customize->add_setting(
-			$ewo_2025_setting,
-			array(
-				'default'           => '',
-				'sanitize_callback' => 'esc_url_raw',
-			)
-		);
-
-		$wp_customize->add_control(
-			$ewo_2025_setting,
-			array(
-				'label'       => sprintf(
-					/* translators: %s: Platform name. */
-					esc_html__( '%s URL', 'ewo-2025' ),
-					$ewo_2025_platform['label']
-				),
-				'section'     => 'ewo_2025_platform_settings',
-				'type'        => 'url',
-				'input_attrs' => array(
-					'placeholder' => 'https://',
-				),
-			)
-		);
-	}
-
-	// Optional follower / subscriber counts for the homepage "Connect With EWO" cards.
-	$ewo_2025_count_platforms = array(
-		'youtube'  => __( 'YouTube subscribers', 'ewo-2025' ),
-		'spotify'  => __( 'Spotify followers', 'ewo-2025' ),
-		'x'        => __( 'X followers', 'ewo-2025' ),
-		'substack' => __( 'Substack subscribers', 'ewo-2025' ),
-	);
-
-	foreach ( $ewo_2025_count_platforms as $ewo_2025_count_key => $ewo_2025_count_label ) {
-		$ewo_2025_count_setting = 'ewo_2025_' . $ewo_2025_count_key . '_count';
-
-		$wp_customize->add_setting(
-			$ewo_2025_count_setting,
-			array(
-				'default'           => '',
-				'sanitize_callback' => 'sanitize_text_field',
-			)
-		);
-
-		$wp_customize->add_control(
-			$ewo_2025_count_setting,
-			array(
-				'label'       => $ewo_2025_count_label,
-				'section'     => 'ewo_2025_platform_settings',
-				'type'        => 'text',
-				'input_attrs' => array(
-					'placeholder' => '350K',
-				),
-			)
-		);
-	}
-}
-add_action( 'customize_register', 'ewo_2025_customize_register' );
-
-/**
- * Get a configured platform URL.
- *
- * @param string $platform Platform key.
- * @return string
- */
-function ewo_2025_get_platform_url( $platform ) {
-	$platforms = ewo_2025_get_platforms();
-
-	if ( ! isset( $platforms[ $platform ] ) ) {
-		return '';
-	}
-
-	return trim( (string) get_theme_mod( 'ewo_2025_' . $platform . '_url', '' ) );
-}
-
-
-
-/**
- * Determine whether any configured platform URLs exist.
- *
- * @param string[] $platform_keys Platform keys to check.
- * @return bool
- */
-function ewo_2025_has_platform_links( $platform_keys = array() ) {
-	foreach ( $platform_keys as $platform_key ) {
-		if ( '' !== ewo_2025_get_platform_url( $platform_key ) ) {
-			return true;
-		}
-	}
-
-	return false;
-}
-
-/**
- * Print configured platform links.
- *
- * @param string[] $platform_keys Platform keys to render.
- * @param string   $class_name    Block class name.
- */
-function ewo_2025_platform_links( $platform_keys = array(), $class_name = 'ewo-platform-links' ) {
-	$platforms = ewo_2025_get_platforms();
-	$links     = array();
-
-	foreach ( $platform_keys as $platform_key ) {
-		$url = ewo_2025_get_platform_url( $platform_key );
-
-		if ( '' === $url || ! isset( $platforms[ $platform_key ] ) ) {
-			continue;
-		}
-
-		$links[] = array(
-			'url'   => $url,
-			'label' => $platforms[ $platform_key ]['label'],
-			'short' => $platforms[ $platform_key ]['short'],
-		);
-	}
-
-	if ( empty( $links ) ) {
-		return;
-	}
-	?>
-	<div class="<?php echo esc_attr( $class_name ); ?>" aria-label="<?php esc_attr_e( 'EWO platform links', 'ewo-2025' ); ?>">
-		<?php foreach ( $links as $link ) : ?>
-			<a href="<?php echo esc_url( $link['url'] ); ?>" target="_blank" rel="noopener noreferrer" aria-label="<?php echo esc_attr( $link['label'] ); ?>">
-				<span aria-hidden="true"><?php echo esc_html( $link['short'] ); ?></span>
-				<span class="ewo-platform-links__label"><?php echo esc_html( $link['label'] ); ?></span>
-			</a>
-		<?php endforeach; ?>
-	</div>
-	<?php
-}
 
 /**
  * Replace the default "Category: Analysis" archive title with a branded one.
