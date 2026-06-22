@@ -4,7 +4,7 @@ Theme URI: https://example.com/ewo-2025
 Author: EWO
 Author URI: https://example.com
 Description: A responsive dark navy WordPress theme skeleton with electric blue, silver, white, and gold accents.
-Version: 0.5.0
+Version: 0.3.7
 Requires at least: 6.0
 Tested up to: 6.6
 Requires PHP: 7.4
@@ -1535,17 +1535,30 @@ body.home {
 	text-decoration: none;
 }
 
+/* Imported thumbnails have mixed source ratios (some 16:9, some 3:2), so
+   `contain` shows each full composition without cropping; the dark wrapper
+   fills any letterbox space cleanly. NOTE: the global `.wp-post-image` rule
+   adds `margin-bottom: 24px` + `border-radius` to the thumbnail <img>; inside
+   this fixed 16:9 wrapper that margin pushed the image up and the overflow
+   clipped its top edge. Resetting margin/radius here is the actual fix. */
+.ewo-briefing-card__media:has(img) {
+	background: #071525;
+}
+
 .ewo-briefing-card__media img {
+	border-radius: 0;
+	display: block;
 	height: 100%;
-	object-fit: cover;
-	transition: transform 220ms ease, opacity 220ms ease;
+	margin: 0;
+	object-fit: contain;
+	object-position: center center;
+	transition: opacity 220ms ease;
 	width: 100%;
 }
 
 .ewo-briefing-card:hover .ewo-briefing-card__media img,
 .ewo-briefing-card:focus-within .ewo-briefing-card__media img {
 	opacity: 0.9;
-	transform: scale(1.035);
 }
 
 .ewo-briefing-card__placeholder {
@@ -1801,7 +1814,7 @@ body.home {
 
 .ewo-article-card__media {
 	aspect-ratio: 16 / 9;
-	background: var(--ewo-navy-soft, #10233d);
+	background: #050e1b;
 	border: 1px solid var(--ewo-border, rgba(216, 224, 234, 0.14));
 	border-radius: 8px;
 	margin-bottom: 14px;
@@ -1809,15 +1822,13 @@ body.home {
 }
 
 .ewo-article-card__media img {
+	border-radius: 0;
 	display: block;
 	height: 100%;
-	object-fit: cover;
-	transition: transform 300ms ease;
+	margin: 0; /* reset global .wp-post-image margin-bottom that clipped the top */
+	object-fit: contain;
+	object-position: center center;
 	width: 100%;
-}
-
-.ewo-article-card:hover .ewo-article-card__media img {
-	transform: scale(1.04);
 }
 
 .ewo-article-card__title {
@@ -2110,6 +2121,11 @@ a.ewo-footer-platform:focus-visible {
 	color: #ffffff;
 }
 
+.ewo-footer-platform--rumble .ewo-footer-platform__icon {
+	background: rgba(133, 214, 73, 0.14);
+	color: #85d649;
+}
+
 .ewo-footer-platform--amazon .ewo-footer-platform__icon {
 	background: rgba(255, 153, 0, 0.14);
 	color: #ff9900;
@@ -2324,4 +2340,7 @@ a.ewo-footer-platform:focus-visible {
 	.ewo-media-grid {
 		grid-template-columns: 1fr;
 	}
+}
+.site-footer__platforms:not(:has(.ewo-footer-platform)) {
+	display: none;
 }
