@@ -252,7 +252,7 @@ class EWO_YouTube_Sync {
 	private function upsert_video_post( $video ) {
 		$existing = get_posts(
 			array(
-				'post_type'      => 'ewo_youtube_video',
+				'post_type'      => 'ewo_video',
 				'post_status'    => 'any',
 				'posts_per_page' => 1,
 				'fields'         => 'ids',
@@ -264,7 +264,7 @@ class EWO_YouTube_Sync {
 		$post_date = $this->get_post_date( $video['published_at'] );
 		$post_data = array(
 			'post_title'   => $video['title'],
-			'post_type'    => 'ewo_youtube_video',
+			'post_type'    => 'ewo_video',
 			'post_status'  => 'publish',
 			'post_date'    => $post_date,
 			'post_date_gmt' => get_gmt_from_date( $post_date ),

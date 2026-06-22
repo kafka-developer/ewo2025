@@ -26,6 +26,76 @@ class EWO_YouTube_Playlist_Management {
 		add_action( 'admin_menu', array( $this, 'register_menu' ) );
 		add_action( 'admin_post_' . self::SAVE_ACTION, array( $this, 'handle_save_request' ) );
 		add_action( 'admin_post_' . self::DELETE_ACTION, array( $this, 'handle_delete_request' ) );
+		add_action( 'load-post-new.php', array( $this, 'redirect_new_playlist_screen' ) );
+		add_action( 'load-post.php', array( $this, 'redirect_edit_playlist_screen' ) );
+		add_filter( 'get_edit_post_link', array( $this, 'filter_edit_link' ), 10, 3 );
+		add_filter( 'post_row_actions', array( $this, 'filter_row_actions' ), 10, 2 );
+	}
+
+	/**
+	 * Send the "Add New YouTube Playlist" action to this screen instead of
+	 * the WordPress block editor.
+	 */
+	public function redirect_new_playlist_screen() {
+		$post_type = isset( $_GET['post_type'] ) ? sanitize_key( wp_unslash( $_GET['post_type'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+		if ( 'ewo_playlist' !== $post_type ) {
+			return;
+		}
+
+		wp_safe_redirect( $this->get_page_url() );
+		exit;
+	}
+
+	/**
+	 * Send "Edit" (post.php?action=edit) for a playlist to this screen instead
+	 * of the WordPress block editor.
+	 */
+	public function redirect_edit_playlist_screen() {
+		$action  = isset( $_GET['action'] ) ? sanitize_key( wp_unslash( $_GET['action'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$post_id = isset( $_GET['post'] ) ? absint( $_GET['post'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+		if ( 'edit' !== $action || ! $post_id || 'ewo_playlist' !== get_post_type( $post_id ) ) {
+			return;
+		}
+
+		wp_safe_redirect( $this->get_page_url( array( 'edit_playlist' => $post_id ) ) );
+		exit;
+	}
+
+	/**
+	 * Point playlist edit links (row title and Edit action) at this screen.
+	 *
+	 * @param string $link    Default edit link.
+	 * @param int    $post_id Post ID.
+	 * @param string $context Link context.
+	 * @return string
+	 */
+	public function filter_edit_link( $link, $post_id, $context ) {
+		if ( 'ewo_playlist' !== get_post_type( $post_id ) || ! current_user_can( 'manage_options' ) ) {
+			return $link;
+		}
+
+		$url = $this->get_page_url( array( 'edit_playlist' => $post_id ) );
+
+		return 'display' === $context ? esc_url( $url ) : esc_url_raw( $url );
+	}
+
+	/**
+	 * Remove the Quick Edit (inline) action for playlists.
+	 *
+	 * @param array<string,string> $actions Row actions.
+	 * @param WP_Post               $post    Current post.
+	 * @return array<string,string>
+	 */
+	public function filter_row_actions( $actions, $post ) {
+		if ( 'ewo_playlist' !== $post->post_type ) {
+			return $actions;
+		}
+
+		unset( $actions['inline hide-if-no-js'] );
+
+		return $actions;
 	}
 
 	/**
@@ -38,7 +108,8 @@ class EWO_YouTube_Playlist_Management {
 			esc_html__( 'Playlists', 'ewo-youtube-integration' ),
 			'manage_options',
 			self::PAGE_SLUG,
-			array( $this, 'render_page' )
+			array( $this, 'render_page' ),
+			40
 		);
 	}
 
@@ -71,11 +142,11 @@ class EWO_YouTube_Playlist_Management {
 		$post_data = array(
 			'post_title'   => $title,
 			'post_content' => $description,
-			'post_type'    => 'ewo_youtube_playlist',
+			'post_type'    => 'ewo_playlist',
 			'post_status'  => 'publish',
 		);
 
-		if ( $post_id && 'ewo_youtube_playlist' === get_post_type( $post_id ) ) {
+		if ( $post_id && 'ewo_playlist' === get_post_type( $post_id ) ) {
 			$post_data['ID'] = $post_id;
 			$saved_post_id   = wp_update_post( wp_slash( $post_data ), true );
 		} else {
@@ -116,7 +187,7 @@ class EWO_YouTube_Playlist_Management {
 
 		$post_id = isset( $_GET['post_id'] ) ? absint( $_GET['post_id'] ) : 0;
 
-		if ( $post_id && 'ewo_youtube_playlist' === get_post_type( $post_id ) ) {
+		if ( $post_id && 'ewo_playlist' === get_post_type( $post_id ) ) {
 			wp_trash_post( $post_id );
 		}
 
@@ -194,7 +265,7 @@ class EWO_YouTube_Playlist_Management {
 	private function render_playlists_table() {
 		$playlists = get_posts(
 			array(
-				'post_type'      => 'ewo_youtube_playlist',
+				'post_type'      => 'ewo_playlist',
 				'post_status'    => array( 'publish', 'draft', 'pending', 'private' ),
 				'posts_per_page' => 50,
 				'orderby'        => 'date',
@@ -244,7 +315,7 @@ class EWO_YouTube_Playlist_Management {
 	private function get_edit_post() {
 		$post_id = isset( $_GET['edit_playlist'] ) ? absint( $_GET['edit_playlist'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
-		if ( ! $post_id || 'ewo_youtube_playlist' !== get_post_type( $post_id ) ) {
+		if ( ! $post_id || 'ewo_playlist' !== get_post_type( $post_id ) ) {
 			return null;
 		}
 
@@ -260,7 +331,7 @@ class EWO_YouTube_Playlist_Management {
 	private function get_playlist_by_id( $playlist_id ) {
 		$posts = get_posts(
 			array(
-				'post_type'      => 'ewo_youtube_playlist',
+				'post_type'      => 'ewo_playlist',
 				'post_status'    => 'any',
 				'posts_per_page' => 1,
 				'fields'         => 'ids',

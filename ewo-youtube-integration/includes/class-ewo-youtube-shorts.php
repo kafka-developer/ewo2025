@@ -49,7 +49,8 @@ class EWO_YouTube_Shorts {
 	 * @return string
 	 */
 	public function render_shortcode() {
-		return $this->render();
+		
+				return $this->render();
 	}
 
 	/**
@@ -98,7 +99,7 @@ class EWO_YouTube_Shorts {
 	private function get_shorts() {
 		$query = new WP_Query(
 			array(
-				'post_type'           => 'ewo_youtube_video',
+				'post_type'           => 'ewo_video',
 				'post_status'         => 'publish',
 				'posts_per_page'      => 40,
 				'orderby'             => 'date',

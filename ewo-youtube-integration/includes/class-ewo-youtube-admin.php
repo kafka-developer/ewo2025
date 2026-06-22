@@ -34,6 +34,39 @@ class EWO_YouTube_Admin {
 	 */
 	public function init() {
 		add_action( 'admin_menu', array( $this, 'register_menu' ) );
+		add_action( 'admin_menu', array( $this, 'reorder_submenu' ), 999 );
+	}
+
+	/**
+	 * Enforce the visible EWO YouTube submenu order after every submenu has
+	 * been registered. This is the single source of truth for ordering.
+	 */
+	public function reorder_submenu() {
+		global $submenu;
+
+		if ( empty( $submenu['ewo-youtube'] ) ) {
+			return;
+		}
+
+		$order = array(
+			'ewo-youtube-add-video',     // Videos.
+			'ewo-youtube-shorts',        // Shorts.
+			'ewo-youtube-add-community', // Community Posts.
+			'ewo-youtube-playlists',     // Playlists.
+			'ewo-youtube',               // Settings.
+			'ewo-youtube-bulk-import',   // Bulk Import.
+		);
+		$rank  = array_flip( $order );
+
+		usort(
+			$submenu['ewo-youtube'],
+			static function ( $a, $b ) use ( $rank ) {
+				$rank_a = isset( $rank[ $a[2] ] ) ? $rank[ $a[2] ] : 999;
+				$rank_b = isset( $rank[ $b[2] ] ) ? $rank[ $b[2] ] : 999;
+
+				return $rank_a <=> $rank_b;
+			}
+		);
 	}
 
 	/**
@@ -56,7 +89,8 @@ class EWO_YouTube_Admin {
 			esc_html__( 'Settings', 'ewo-youtube-integration' ),
 			'manage_options',
 			'ewo-youtube',
-			array( $this->settings, 'render_page' )
+			array( $this->settings, 'render_page' ),
+			50
 		);
 	}
 }

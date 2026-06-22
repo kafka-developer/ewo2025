@@ -40,7 +40,8 @@ class EWO_YouTube_Bulk_Import {
 			esc_html__( 'Bulk Import', 'ewo-youtube-integration' ),
 			'manage_options',
 			self::PAGE_SLUG,
-			array( $this, 'render_page' )
+			array( $this, 'render_page' ),
+			60
 		);
 	}
 
@@ -75,7 +76,7 @@ class EWO_YouTube_Bulk_Import {
 		$post_id = isset( $_GET['post_id'] ) ? absint( $_GET['post_id'] ) : 0;
 		$task    = isset( $_GET['task'] ) ? sanitize_key( wp_unslash( $_GET['task'] ) ) : '';
 
-		if ( ! $post_id || 'ewo_youtube_video' !== get_post_type( $post_id ) ) {
+		if ( ! $post_id || 'ewo_video' !== get_post_type( $post_id ) ) {
 			$this->store_error( __( 'Invalid YouTube video record.', 'ewo-youtube-integration' ) );
 			wp_safe_redirect( $this->get_page_url( array( 'ewo_youtube_import' => 'error' ) ) );
 			exit;
@@ -353,7 +354,7 @@ class EWO_YouTube_Bulk_Import {
 	private function upsert_video_post( $video ) {
 		$existing = get_posts(
 			array(
-				'post_type'      => 'ewo_youtube_video',
+				'post_type'      => 'ewo_video',
 				'post_status'    => 'any',
 				'posts_per_page' => 1,
 				'fields'         => 'ids',
@@ -365,7 +366,7 @@ class EWO_YouTube_Bulk_Import {
 		$post_date = $this->get_post_date( $video['published_at'] );
 		$post_data = array(
 			'post_title'    => $video['title'],
-			'post_type'     => 'ewo_youtube_video',
+			'post_type'     => 'ewo_video',
 			'post_status'   => 'publish',
 			'post_date'     => $post_date,
 			'post_date_gmt' => get_gmt_from_date( $post_date ),
@@ -408,7 +409,7 @@ class EWO_YouTube_Bulk_Import {
 	private function render_videos_table() {
 		$videos = get_posts(
 			array(
-				'post_type'      => 'ewo_youtube_video',
+				'post_type'      => 'ewo_video',
 				'post_status'    => array( 'publish', 'draft', 'pending', 'private' ),
 				'posts_per_page' => 50,
 				'orderby'        => 'date',

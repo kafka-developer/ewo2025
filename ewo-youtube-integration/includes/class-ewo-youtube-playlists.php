@@ -42,7 +42,8 @@ class EWO_YouTube_Playlists {
 	 * @return string
 	 */
 	public function render_shortcode() {
-		return $this->render();
+		
+				return $this->render();
 	}
 
 	/**
@@ -89,7 +90,7 @@ class EWO_YouTube_Playlists {
 	private function get_playlists() {
 		$query = new WP_Query(
 			array(
-				'post_type'           => 'ewo_youtube_playlist',
+				'post_type'           => 'ewo_playlist',
 				'post_status'         => 'publish',
 				'posts_per_page'      => 12,
 				'orderby'             => 'date',

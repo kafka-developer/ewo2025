@@ -34,7 +34,7 @@ class EWO_YouTube_Post_Types {
 	 */
 	private function register_video_post_type() {
 		register_post_type(
-			'ewo_youtube_video',
+			'ewo_video',
 			array(
 				'labels'          => array(
 					'name'               => esc_html__( 'YouTube Videos', 'ewo-youtube-integration' ),
@@ -50,7 +50,7 @@ class EWO_YouTube_Post_Types {
 				),
 				'public'          => false,
 				'show_ui'         => true,
-				'show_in_menu'    => 'ewo-youtube',
+				'show_in_menu'    => false,
 				'show_in_rest'    => true,
 				'capability_type' => 'post',
 				'has_archive'     => false,
@@ -65,7 +65,7 @@ class EWO_YouTube_Post_Types {
 	 */
 	private function register_playlist_post_type() {
 		register_post_type(
-			'ewo_youtube_playlist',
+			'ewo_playlist',
 			array(
 				'labels'          => array(
 					'name'               => esc_html__( 'YouTube Playlists', 'ewo-youtube-integration' ),
@@ -81,7 +81,7 @@ class EWO_YouTube_Post_Types {
 				),
 				'public'          => false,
 				'show_ui'         => true,
-				'show_in_menu'    => 'ewo-youtube',
+				'show_in_menu'    => false,
 				'show_in_rest'    => true,
 				'capability_type' => 'post',
 				'has_archive'     => false,
@@ -96,7 +96,7 @@ class EWO_YouTube_Post_Types {
 	 */
 	private function register_community_post_type() {
 		register_post_type(
-			'ewo_youtube_community',
+			'ewo_community',
 			array(
 				'labels'          => array(
 					'name'               => esc_html__( 'YouTube Community Posts', 'ewo-youtube-integration' ),
@@ -112,7 +112,7 @@ class EWO_YouTube_Post_Types {
 				),
 				'public'          => false,
 				'show_ui'         => true,
-				'show_in_menu'    => 'ewo-youtube',
+				'show_in_menu'    => false,
 				'show_in_rest'    => true,
 				'capability_type' => 'post',
 				'has_archive'     => false,
