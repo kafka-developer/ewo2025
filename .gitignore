@@ -1,0 +1,12 @@
+# Build artifacts / distributable archives
+*.zip
+
+# Agent / editor / OS state
+.claude/
+.idea/
+.vscode/
+.DS_Store
+
+# Dependencies (none committed)
+node_modules/
+vendor/
