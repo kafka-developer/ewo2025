@@ -1,0 +1,543 @@
+/**
+ * EWO RSS Engine — Dashboard page styles.
+ *
+ * Loaded ONLY on the dashboard page hook. Scoped under .ewo-db-page
+ * so nothing leaks to other admin screens. Uses !important on layout
+ * properties to override WordPress admin defaults where necessary.
+ */
+
+/* =========================================================================
+   Scope reset
+   ======================================================================= */
+
+.ewo-db-page,
+.ewo-db-page * {
+	box-sizing: border-box;
+}
+
+/* =========================================================================
+   Page shell
+   ======================================================================= */
+
+.ewo-db-page {
+	max-width: 1380px;
+	padding-bottom: 32px;
+	font-size: 13px;
+	line-height: 1.5;
+	color: #1d2327;
+}
+
+/* =========================================================================
+   Page header: title + Run button side by side
+   ======================================================================= */
+
+.ewo-db-header {
+	display: flex !important;
+	align-items: flex-start !important;
+	justify-content: space-between !important;
+	gap: 16px !important;
+	flex-wrap: wrap !important;
+	margin-bottom: 24px !important;
+	padding-bottom: 20px !important;
+	border-bottom: 1px solid #e2e4e7 !important;
+}
+
+.ewo-db-header-left {
+	min-width: 0;
+}
+
+.ewo-db-title {
+	font-size: 22px !important;
+	font-weight: 700 !important;
+	color: #1d2327 !important;
+	margin: 0 0 4px !important;
+	line-height: 1.2 !important;
+}
+
+.ewo-db-subtitle {
+	font-size: 13px !important;
+	color: #646970 !important;
+	margin: 0 !important;
+}
+
+.ewo-db-subtitle-cron {
+	color: #a7aaad;
+}
+
+.ewo-db-header-right {
+	flex-shrink: 0;
+	padding-top: 2px;
+}
+
+.ewo-db-run-btn.button {
+	display: inline-flex !important;
+	align-items: center !important;
+	gap: 6px !important;
+	height: 36px !important;
+	padding: 0 16px !important;
+	font-size: 13px !important;
+	font-weight: 600 !important;
+	border-radius: 4px !important;
+	white-space: nowrap !important;
+}
+
+.ewo-db-run-btn.button .dashicons {
+	font-size: 16px !important;
+	width: 16px !important;
+	height: 16px !important;
+	line-height: 1 !important;
+}
+
+/* =========================================================================
+   Stat cards row
+   ======================================================================= */
+
+.ewo-db-stats {
+	display: grid !important;
+	grid-template-columns: repeat(6, 1fr) !important;
+	gap: 14px !important;
+	margin-bottom: 28px !important;
+}
+
+@media screen and (max-width: 1200px) {
+	.ewo-db-stats { grid-template-columns: repeat(3, 1fr) !important; }
+}
+
+@media screen and (max-width: 782px) {
+	.ewo-db-stats { grid-template-columns: repeat(2, 1fr) !important; }
+}
+
+.ewo-db-stat {
+	background: #ffffff !important;
+	border: 1px solid #dcdcde !important;
+	border-radius: 8px !important;
+	padding: 18px 20px 16px !important;
+	display: flex !important;
+	flex-direction: column !important;
+	gap: 5px !important;
+	box-shadow: 0 1px 4px rgba(0, 0, 0, .06) !important;
+	position: relative;
+	overflow: hidden;
+}
+
+.ewo-db-stat::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 3px;
+	background: #2271b1;
+	border-radius: 8px 8px 0 0;
+}
+
+.ewo-db-stat-label {
+	font-size: 10px !important;
+	font-weight: 700 !important;
+	color: #8c8f94 !important;
+	text-transform: uppercase !important;
+	letter-spacing: .06em !important;
+	display: block !important;
+}
+
+.ewo-db-stat-value {
+	font-size: 32px !important;
+	font-weight: 800 !important;
+	color: #1d2327 !important;
+	line-height: 1 !important;
+	display: block !important;
+	letter-spacing: -.01em;
+}
+
+.ewo-db-stat-value--text {
+	font-size: 18px !important;
+	font-weight: 700 !important;
+	letter-spacing: 0 !important;
+	line-height: 1.2 !important;
+}
+
+.ewo-db-stat-helper {
+	font-size: 11px !important;
+	color: #a7aaad !important;
+	display: block !important;
+}
+
+/* =========================================================================
+   Two-column body layout
+   ======================================================================= */
+
+.ewo-db-body {
+	display: grid !important;
+	grid-template-columns: 1fr 300px !important;
+	gap: 20px !important;
+	align-items: start !important;
+}
+
+@media screen and (max-width: 1100px) {
+	.ewo-db-body { grid-template-columns: 1fr !important; }
+}
+
+.ewo-db-col-main,
+.ewo-db-col-side {
+	display: flex !important;
+	flex-direction: column !important;
+	gap: 20px !important;
+}
+
+/* =========================================================================
+   Cards
+   ======================================================================= */
+
+.ewo-db-card {
+	background: #ffffff !important;
+	border: 1px solid #dcdcde !important;
+	border-radius: 8px !important;
+	overflow: hidden !important;
+	box-shadow: 0 1px 4px rgba(0, 0, 0, .06) !important;
+}
+
+.ewo-db-card-header {
+	display: flex !important;
+	align-items: center !important;
+	justify-content: space-between !important;
+	padding: 13px 18px 12px !important;
+	background: #f6f7f7 !important;
+	border-bottom: 1px solid #e2e4e7 !important;
+}
+
+.ewo-db-card-title {
+	font-size: 13px !important;
+	font-weight: 700 !important;
+	color: #1d2327 !important;
+	margin: 0 !important;
+	line-height: 1.3 !important;
+}
+
+.ewo-db-card-action {
+	font-size: 12px !important;
+	color: #2271b1 !important;
+	text-decoration: none !important;
+	font-weight: 500 !important;
+	white-space: nowrap !important;
+}
+
+.ewo-db-card-action:hover {
+	text-decoration: underline !important;
+	color: #135e96 !important;
+}
+
+.ewo-db-card-body {
+	padding: 16px 18px !important;
+}
+
+.ewo-db-card-body--flush {
+	padding: 0 !important;
+}
+
+/* =========================================================================
+   Tables inside cards
+   ======================================================================= */
+
+.ewo-db-table {
+	width: 100% !important;
+	border-collapse: collapse !important;
+	border-spacing: 0 !important;
+	font-size: 13px !important;
+	background: transparent !important;
+}
+
+/* Reset WP widefat overrides within our scope */
+.ewo-db-page .ewo-db-table th,
+.ewo-db-page .ewo-db-table td {
+	border: none !important;
+	padding: 0 !important;
+}
+
+.ewo-db-table thead tr {
+	background: #f9fafb !important;
+}
+
+.ewo-db-table th {
+	padding: 8px 14px !important;
+	text-align: left !important;
+	font-size: 11px !important;
+	font-weight: 700 !important;
+	color: #646970 !important;
+	text-transform: uppercase !important;
+	letter-spacing: .05em !important;
+	white-space: nowrap !important;
+	border-bottom: 1px solid #e2e4e7 !important;
+	background: #f9fafb !important;
+}
+
+.ewo-db-table th.ewo-db-th-center {
+	text-align: center !important;
+}
+
+.ewo-db-table td {
+	padding: 10px 14px !important;
+	color: #1d2327 !important;
+	border-bottom: 1px solid #f0f0f1 !important;
+	vertical-align: middle !important;
+	background: transparent !important;
+}
+
+.ewo-db-table tbody tr:last-child td {
+	border-bottom: none !important;
+}
+
+.ewo-db-table tbody tr:hover td {
+	background: #f8f9fa !important;
+}
+
+/* Specific column styles */
+.ewo-db-td-title {
+	max-width: 240px !important;
+}
+
+.ewo-db-td-code {
+	max-width: 180px !important;
+}
+
+.ewo-db-td-num {
+	text-align: center !important;
+	font-variant-numeric: tabular-nums !important;
+	color: #50575e !important;
+}
+
+.ewo-db-td-muted {
+	color: #787c82 !important;
+}
+
+.ewo-db-td-nowrap {
+	white-space: nowrap !important;
+}
+
+.ewo-db-td-created {
+	color: #00a32a !important;
+	font-weight: 700 !important;
+}
+
+.ewo-db-td-error {
+	color: #d63638 !important;
+	font-weight: 700 !important;
+}
+
+.ewo-db-tr-error td {
+	background: #fff8f8 !important;
+}
+
+/* Title link in source table */
+.ewo-db-title-link {
+	font-weight: 600 !important;
+	color: #1d2327 !important;
+	text-decoration: none !important;
+	display: block !important;
+	overflow: hidden !important;
+	text-overflow: ellipsis !important;
+	white-space: nowrap !important;
+	max-width: 220px !important;
+}
+
+.ewo-db-title-link:hover {
+	color: #2271b1 !important;
+}
+
+.ewo-db-code-cell {
+	font-family: Consolas, Monaco, monospace !important;
+	font-size: 11px !important;
+	color: #50575e !important;
+	display: block !important;
+	overflow: hidden !important;
+	text-overflow: ellipsis !important;
+	white-space: nowrap !important;
+	max-width: 160px !important;
+}
+
+.ewo-db-view-link {
+	font-size: 12px !important;
+	color: #2271b1 !important;
+	text-decoration: none !important;
+	font-weight: 500 !important;
+	white-space: nowrap !important;
+}
+
+.ewo-db-view-link:hover {
+	text-decoration: underline !important;
+}
+
+/* =========================================================================
+   Status badges
+   ======================================================================= */
+
+.ewo-db-badge {
+	display: inline-flex !important;
+	align-items: center !important;
+	padding: 3px 9px !important;
+	border-radius: 12px !important;
+	font-size: 11px !important;
+	font-weight: 700 !important;
+	line-height: 1.3 !important;
+	white-space: nowrap !important;
+}
+
+.ewo-db-badge--green {
+	background: #d1e7dd !important;
+	color: #0a3622 !important;
+}
+
+.ewo-db-badge--grey {
+	background: #f0f0f1 !important;
+	color: #50575e !important;
+}
+
+.ewo-db-badge--blue {
+	background: #dce9f6 !important;
+	color: #0a2c55 !important;
+}
+
+.ewo-db-badge--xs {
+	font-size: 10px !important;
+	padding: 2px 6px !important;
+}
+
+/* =========================================================================
+   Right sidebar: list panels
+   ======================================================================= */
+
+.ewo-db-side-list {
+	margin: 0 !important;
+	padding: 0 !important;
+	list-style: none !important;
+}
+
+.ewo-db-side-item {
+	padding: 10px 18px !important;
+	border-bottom: 1px solid #f0f0f1 !important;
+}
+
+.ewo-db-side-item:last-child {
+	border-bottom: none !important;
+}
+
+.ewo-db-side-item--row {
+	display: flex !important;
+	align-items: center !important;
+	justify-content: space-between !important;
+	gap: 8px !important;
+}
+
+.ewo-db-side-name {
+	font-size: 13px !important;
+	font-weight: 600 !important;
+	color: #1d2327 !important;
+	overflow: hidden !important;
+	text-overflow: ellipsis !important;
+	white-space: nowrap !important;
+}
+
+.ewo-db-side-count {
+	font-size: 12px !important;
+	font-weight: 700 !important;
+	color: #2271b1 !important;
+	white-space: nowrap !important;
+	flex-shrink: 0 !important;
+}
+
+.ewo-db-kw-name {
+	font-size: 13px !important;
+	font-weight: 600 !important;
+	color: #1d2327 !important;
+	display: flex !important;
+	align-items: center !important;
+	gap: 6px !important;
+	flex-wrap: wrap !important;
+}
+
+.ewo-db-kw-meta {
+	font-size: 11px !important;
+	color: #787c82 !important;
+	margin-top: 2px !important;
+}
+
+.ewo-db-dot {
+	color: #c3c4c7 !important;
+	margin: 0 2px !important;
+}
+
+/* =========================================================================
+   Quick Actions card
+   ======================================================================= */
+
+.ewo-db-quick-list {
+	display: flex !important;
+	flex-direction: column !important;
+	gap: 8px !important;
+	margin: 0 !important;
+	padding: 0 !important;
+	list-style: none !important;
+}
+
+.ewo-db-quick-btn {
+	display: flex !important;
+	align-items: center !important;
+	gap: 10px !important;
+	width: 100% !important;
+	padding: 10px 14px !important;
+	background: #f6f7f7 !important;
+	border: 1px solid #dcdcde !important;
+	border-radius: 6px !important;
+	font-size: 13px !important;
+	font-weight: 500 !important;
+	color: #1d2327 !important;
+	text-decoration: none !important;
+	cursor: pointer !important;
+	transition: background .12s, border-color .12s !important;
+	text-align: left !important;
+}
+
+.ewo-db-quick-btn:hover {
+	background: #e8f0fe !important;
+	border-color: #2271b1 !important;
+	color: #2271b1 !important;
+}
+
+.ewo-db-quick-btn--primary {
+	background: #2271b1 !important;
+	border-color: #2271b1 !important;
+	color: #ffffff !important;
+}
+
+.ewo-db-quick-btn--primary:hover {
+	background: #135e96 !important;
+	border-color: #135e96 !important;
+	color: #ffffff !important;
+}
+
+.ewo-db-quick-btn .dashicons {
+	font-size: 16px !important;
+	width: 16px !important;
+	height: 16px !important;
+	line-height: 1 !important;
+	flex-shrink: 0 !important;
+	color: inherit !important;
+}
+
+/* Quick action Run form keeps the same width */
+.ewo-db-quick-form {
+	margin: 0 !important;
+	padding: 0 !important;
+}
+
+/* =========================================================================
+   Empty states
+   ======================================================================= */
+
+.ewo-db-empty {
+	padding: 24px 18px !important;
+	color: #787c82 !important;
+	font-size: 13px !important;
+	text-align: center !important;
+	font-style: italic !important;
+	margin: 0 !important;
+}
