@@ -25,6 +25,9 @@ class EWO_RSS_Engine {
 		$frontend      = new EWO_RSS_Frontend();
 		$admin_feeds   = new EWO_RSS_Admin_Feeds();
 		$admin_tools   = new EWO_RSS_Admin_Tools();
+		$admin_keywords = new EWO_RSS_Admin_Keywords();
+		$admin_sources  = new EWO_RSS_Admin_Sources();
+		$admin_domains  = new EWO_RSS_Admin_Domains();
 		$migrate       = new EWO_RSS_Migrate();
 
 		$sources->init();
@@ -34,8 +37,15 @@ class EWO_RSS_Engine {
 		$frontend->init();
 		$admin_feeds->init();
 		$admin_tools->init();
+		$admin_keywords->init();
+		$admin_sources->init();
+		$admin_domains->init();
 
 		// One-time schema migration (admin context).
 		add_action( 'admin_init', array( $migrate, 'maybe_migrate' ) );
+
+		// Ensure the keyword/Source tables exist for already-active installs.
+		add_action( 'admin_init', array( 'EWO_RSS_Taxonomy', 'maybe_install' ) );
+		add_action( 'admin_init', array( 'EWO_RSS_Source_Store', 'maybe_install' ) );
 	}
 }

@@ -122,6 +122,77 @@ class EWO_RSS_Admin {
 		);
 	}
 
+	/* ---------------------------------------------------------------------
+	 * Dashboard metrics helpers
+	 * ------------------------------------------------------------------- */
+
+	/**
+	 * Most recent fetched_at timestamp from the sources table.
+	 *
+	 * @return string Human-readable or '—'.
+	 */
+	protected function last_fetch_time() {
+		global $wpdb;
+		$table = EWO_RSS_Source_Store::table();
+		$ts    = $wpdb->get_var( "SELECT fetched_at FROM $table ORDER BY fetched_at DESC LIMIT 1" ); // phpcs:ignore WordPress.DB
+		if ( ! $ts || '0000-00-00 00:00:00' === $ts ) {
+			return '—';
+		}
+		$ago = human_time_diff( strtotime( $ts ), time() );
+		return sprintf(
+			/* translators: %s time ago */
+			__( '%s ago', 'ewo-rss-engine' ),
+			$ago
+		);
+	}
+
+	/**
+	 * Top N strategic domains by source count.
+	 *
+	 * @param int $limit Number to return.
+	 * @return array<int,object> Each has name, source_count.
+	 */
+	protected function top_domains( $limit = 5 ) {
+		global $wpdb;
+		$src   = EWO_RSS_Source_Store::table();
+		$dom   = EWO_RSS_Taxonomy::domains_table();
+		$limit = (int) $limit;
+		return (array) $wpdb->get_results( // phpcs:ignore WordPress.DB
+			"SELECT d.name, COUNT(s.id) AS source_count
+			 FROM $dom d
+			 LEFT JOIN $src s ON s.domain_id = d.id
+			 GROUP BY d.id, d.name
+			 ORDER BY source_count DESC, d.name ASC
+			 LIMIT $limit"
+		);
+	}
+
+	/**
+	 * Most recently added keywords.
+	 *
+	 * @param int $limit Number to return.
+	 * @return array<int,object>
+	 */
+	protected function recent_keywords( $limit = 5 ) {
+		global $wpdb;
+		$kw    = EWO_RSS_Taxonomy::keywords_table();
+		$sub   = EWO_RSS_Taxonomy::subdomains_table();
+		$dom   = EWO_RSS_Taxonomy::domains_table();
+		$limit = (int) $limit;
+		return (array) $wpdb->get_results( // phpcs:ignore WordPress.DB
+			"SELECT k.keyword, k.active, k.created_at, s.name AS subdomain_name, d.name AS domain_name
+			 FROM $kw k
+			 LEFT JOIN $sub s ON k.subdomain_id = s.id
+			 LEFT JOIN $dom d ON s.domain_id = d.id
+			 ORDER BY k.created_at DESC
+			 LIMIT $limit"
+		);
+	}
+
+	/* ---------------------------------------------------------------------
+	 * Dashboard render
+	 * ------------------------------------------------------------------- */
+
 	/**
 	 * Render the dashboard page.
 	 */
@@ -130,99 +201,393 @@ class EWO_RSS_Admin {
 			return;
 		}
 
+		// Metrics.
+		$total_sources   = EWO_RSS_Source_Store::count( array() );
+		$active_keywords = count( EWO_RSS_Taxonomy::get_active_keywords() );
+		$all_feeds       = EWO_RSS_Feed::all();
+		$active_feeds    = count( array_filter( $all_feeds, function ( $fid ) {
+			return EWO_RSS_Feed::STATUS_ENABLED === EWO_RSS_Feed::status( $fid );
+		} ) );
+		$domains    = EWO_RSS_Taxonomy::get_domains();
+		$subdomains = EWO_RSS_Taxonomy::get_subdomains();
+		$last_fetch = $this->last_fetch_time();
+
+		// Panels data.
+		$recent_sources = EWO_RSS_Source_Store::query( array( 'limit' => 8 ) );
+		$top_domains    = $this->top_domains( 8 );
+		$recent_kws     = $this->recent_keywords( 8 );
+
+		// Feed sources + logs.
 		$source_ids = $this->sources->get_all_sources();
 		$logs       = array_slice( EWO_RSS_Logs::all(), 0, 10 );
 		$next_run   = wp_next_scheduled( EWO_RSS_ENGINE_CRON_HOOK );
 		?>
-		<div class="wrap ewo-rss-wrap">
-			<h1><?php esc_html_e( 'EWO RSS Engine', 'ewo-rss-engine' ); ?></h1>
-			<p class="ewo-rss-tagline">
-				<?php esc_html_e( 'Internal RSS/news ingestion engine for Emerging World Order 2025.', 'ewo-rss-engine' ); ?>
-			</p>
+		<div class="wrap ewo-rss-wrap ewo-dash-wrap">
 
-			<p>
-				<?php
-				if ( $next_run ) {
-					printf(
-						/* translators: %s: human-readable time difference. */
-						esc_html__( 'Next scheduled import: in %s.', 'ewo-rss-engine' ),
-						esc_html( human_time_diff( time(), $next_run ) )
-					);
-				} else {
-					esc_html_e( 'No import is currently scheduled.', 'ewo-rss-engine' );
-				}
-				?>
-			</p>
+			<!-- ======================================================
+			     Page header
+			     ====================================================== -->
+			<div class="ewo-dash-page-header">
+				<div class="ewo-dash-page-header-text">
+					<h1 class="ewo-dash-heading"><?php esc_html_e( 'EWO RSS Engine', 'ewo-rss-engine' ); ?></h1>
+					<p class="ewo-dash-subheading">
+						<?php esc_html_e( 'Internal RSS/news ingestion engine for Emerging World Order 2025.', 'ewo-rss-engine' ); ?>
+						<?php if ( $next_run ) : ?>
+							<span class="ewo-dash-next-run-inline">
+								·
+								<?php
+								printf(
+									/* translators: %s: human-readable time difference. */
+									esc_html__( 'Next import in %s', 'ewo-rss-engine' ),
+									esc_html( human_time_diff( time(), $next_run ) )
+								);
+								?>
+							</span>
+						<?php endif; ?>
+					</p>
+				</div>
+				<div class="ewo-dash-page-header-action">
+					<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+						<input type="hidden" name="action" value="<?php echo esc_attr( self::RUN_ACTION ); ?>" />
+						<input type="hidden" name="source_id" value="0" />
+						<?php wp_nonce_field( self::RUN_ACTION ); ?>
+						<button type="submit" class="button button-primary ewo-dash-run-btn">
+							<span class="dashicons dashicons-update" aria-hidden="true"></span>
+							<?php esc_html_e( 'Run All Imports Now', 'ewo-rss-engine' ); ?>
+						</button>
+					</form>
+				</div>
+			</div>
 
-			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="ewo-rss-runall">
-				<input type="hidden" name="action" value="<?php echo esc_attr( self::RUN_ACTION ); ?>" />
-				<input type="hidden" name="source_id" value="0" />
-				<?php wp_nonce_field( self::RUN_ACTION ); ?>
-				<?php submit_button( __( 'Run All Imports Now', 'ewo-rss-engine' ), 'primary', 'submit', false ); ?>
-			</form>
+			<!-- ======================================================
+			     Summary stat cards
+			     ====================================================== -->
+			<div class="ewo-dash-stats">
 
-			<h2><?php esc_html_e( 'Feed Sources', 'ewo-rss-engine' ); ?></h2>
-			<?php if ( empty( $source_ids ) ) : ?>
-				<p>
-					<?php
-					printf(
-						/* translators: %s: link to add a new feed source. */
-						esc_html__( 'No feed sources yet. %s', 'ewo-rss-engine' ),
-						'<a href="' . esc_url( admin_url( 'post-new.php?post_type=' . EWO_RSS_Sources::POST_TYPE ) ) . '">' . esc_html__( 'Add one', 'ewo-rss-engine' ) . '</a>'
-					);
-					?>
-				</p>
-			<?php else : ?>
-				<table class="widefat striped">
-					<thead>
-						<tr>
-							<th><?php esc_html_e( 'Source', 'ewo-rss-engine' ); ?></th>
-							<th><?php esc_html_e( 'Feed URL', 'ewo-rss-engine' ); ?></th>
-							<th><?php esc_html_e( 'Status', 'ewo-rss-engine' ); ?></th>
-							<th><?php esc_html_e( 'Last Run', 'ewo-rss-engine' ); ?></th>
-							<th><?php esc_html_e( 'Actions', 'ewo-rss-engine' ); ?></th>
-						</tr>
-					</thead>
-					<tbody>
-						<?php foreach ( $source_ids as $source_id ) : ?>
-							<?php $settings = $this->sources->get_settings( $source_id ); ?>
-							<tr>
-								<td>
-									<a href="<?php echo esc_url( get_edit_post_link( $source_id ) ); ?>">
-										<?php echo esc_html( $settings['name'] ); ?>
+				<div class="ewo-dash-stat">
+					<span class="ewo-dash-stat-label"><?php esc_html_e( 'Total Sources', 'ewo-rss-engine' ); ?></span>
+					<span class="ewo-dash-stat-value"><?php echo esc_html( number_format_i18n( $total_sources ) ); ?></span>
+					<span class="ewo-dash-stat-helper"><?php esc_html_e( 'Stored source items', 'ewo-rss-engine' ); ?></span>
+				</div>
+
+				<div class="ewo-dash-stat">
+					<span class="ewo-dash-stat-label"><?php esc_html_e( 'Active Keywords', 'ewo-rss-engine' ); ?></span>
+					<span class="ewo-dash-stat-value"><?php echo esc_html( number_format_i18n( $active_keywords ) ); ?></span>
+					<span class="ewo-dash-stat-helper"><?php esc_html_e( 'Keywords generating feeds', 'ewo-rss-engine' ); ?></span>
+				</div>
+
+				<div class="ewo-dash-stat">
+					<span class="ewo-dash-stat-label"><?php esc_html_e( 'Active Feeds', 'ewo-rss-engine' ); ?></span>
+					<span class="ewo-dash-stat-value"><?php echo esc_html( number_format_i18n( $active_feeds ) ); ?></span>
+					<span class="ewo-dash-stat-helper"><?php esc_html_e( 'RSS feeds enabled', 'ewo-rss-engine' ); ?></span>
+				</div>
+
+				<div class="ewo-dash-stat">
+					<span class="ewo-dash-stat-label"><?php esc_html_e( 'Strategic Domains', 'ewo-rss-engine' ); ?></span>
+					<span class="ewo-dash-stat-value"><?php echo esc_html( number_format_i18n( count( $domains ) ) ); ?></span>
+					<span class="ewo-dash-stat-helper"><?php esc_html_e( 'Configured domains', 'ewo-rss-engine' ); ?></span>
+				</div>
+
+				<div class="ewo-dash-stat">
+					<span class="ewo-dash-stat-label"><?php esc_html_e( 'Subdomains', 'ewo-rss-engine' ); ?></span>
+					<span class="ewo-dash-stat-value"><?php echo esc_html( number_format_i18n( count( $subdomains ) ) ); ?></span>
+					<span class="ewo-dash-stat-helper"><?php esc_html_e( 'Configured subdomains', 'ewo-rss-engine' ); ?></span>
+				</div>
+
+				<div class="ewo-dash-stat">
+					<span class="ewo-dash-stat-label"><?php esc_html_e( 'Last Fetch', 'ewo-rss-engine' ); ?></span>
+					<span class="ewo-dash-stat-value ewo-dash-stat-value--text"><?php echo esc_html( $last_fetch ); ?></span>
+					<span class="ewo-dash-stat-helper"><?php esc_html_e( 'Most recent import activity', 'ewo-rss-engine' ); ?></span>
+				</div>
+
+			</div><!-- .ewo-dash-stats -->
+
+			<!-- ======================================================
+			     2-column body
+			     ====================================================== -->
+			<div class="ewo-dash-body">
+
+				<!-- ==================== LEFT COLUMN ==================== -->
+				<div class="ewo-dash-col-main">
+
+					<!-- Recent Source Views -->
+					<div class="ewo-dash-card">
+						<div class="ewo-dash-card-header">
+							<h2 class="ewo-dash-card-title"><?php esc_html_e( 'Recent Source Views', 'ewo-rss-engine' ); ?></h2>
+							<a href="<?php echo esc_url( admin_url( 'admin.php?page=ewo-rss-sources' ) ); ?>" class="ewo-dash-card-link">
+								<?php esc_html_e( 'View all →', 'ewo-rss-engine' ); ?>
+							</a>
+						</div>
+						<div class="ewo-dash-card-body ewo-dash-card-body--flush">
+							<?php if ( empty( $recent_sources ) ) : ?>
+								<p class="ewo-dash-empty-msg"><?php esc_html_e( 'No sources captured yet.', 'ewo-rss-engine' ); ?></p>
+							<?php else : ?>
+								<table class="ewo-dash-table ewo-dash-src-table">
+									<thead>
+										<tr>
+											<th><?php esc_html_e( 'Title', 'ewo-rss-engine' ); ?></th>
+											<th><?php esc_html_e( 'Publication', 'ewo-rss-engine' ); ?></th>
+											<th><?php esc_html_e( 'Subdomain', 'ewo-rss-engine' ); ?></th>
+											<th><?php esc_html_e( 'Date', 'ewo-rss-engine' ); ?></th>
+											<th><?php esc_html_e( 'View', 'ewo-rss-engine' ); ?></th>
+										</tr>
+									</thead>
+									<tbody>
+										<?php foreach ( $recent_sources as $src ) : ?>
+											<?php
+											$detail_url  = admin_url( 'admin.php?page=ewo-rss-sources&view_source=' . (int) $src->id );
+											$subdomain   = EWO_RSS_Taxonomy::get_subdomain( (int) $src->subdomain_id );
+											?>
+											<tr>
+												<td class="ewo-dash-src-title-cell">
+													<a href="<?php echo esc_url( $detail_url ); ?>" class="ewo-dash-src-title-link">
+														<?php echo esc_html( $src->title ); ?>
+													</a>
+												</td>
+												<td class="ewo-dash-cell-muted"><?php echo esc_html( $src->source_domain ?: '—' ); ?></td>
+												<td class="ewo-dash-cell-muted"><?php echo esc_html( $subdomain ? $subdomain->name : '—' ); ?></td>
+												<td class="ewo-dash-cell-nowrap ewo-dash-cell-muted">
+													<?php echo esc_html( $src->published_at ? substr( $src->published_at, 0, 10 ) : '—' ); ?>
+												</td>
+												<td>
+													<a href="<?php echo esc_url( $detail_url ); ?>" class="ewo-dash-row-link">
+														<?php esc_html_e( 'View', 'ewo-rss-engine' ); ?>
+													</a>
+												</td>
+											</tr>
+										<?php endforeach; ?>
+									</tbody>
+								</table>
+							<?php endif; ?>
+						</div>
+					</div><!-- /Recent Source Views -->
+
+					<!-- Feed Sources -->
+					<div class="ewo-dash-card">
+						<div class="ewo-dash-card-header">
+							<h2 class="ewo-dash-card-title"><?php esc_html_e( 'Feed Sources', 'ewo-rss-engine' ); ?></h2>
+							<a href="<?php echo esc_url( admin_url( 'post-new.php?post_type=' . EWO_RSS_Sources::POST_TYPE ) ); ?>" class="ewo-dash-card-link">
+								<?php esc_html_e( '+ Add new', 'ewo-rss-engine' ); ?>
+							</a>
+						</div>
+						<div class="ewo-dash-card-body ewo-dash-card-body--flush">
+							<?php if ( empty( $source_ids ) ) : ?>
+								<p class="ewo-dash-empty-msg">
+									<?php esc_html_e( 'No feed sources configured yet.', 'ewo-rss-engine' ); ?>
+									<a href="<?php echo esc_url( admin_url( 'post-new.php?post_type=' . EWO_RSS_Sources::POST_TYPE ) ); ?>">
+										<?php esc_html_e( 'Add one →', 'ewo-rss-engine' ); ?>
 									</a>
-								</td>
-								<td><code><?php echo esc_html( $settings['feed_url'] ); ?></code></td>
-								<td>
-									<?php
-									echo $settings['enabled']
-										? esc_html__( 'Enabled', 'ewo-rss-engine' )
-										: esc_html__( 'Disabled', 'ewo-rss-engine' );
-									?>
-								</td>
-								<td><?php echo esc_html( '' !== $settings['last_run'] ? $settings['last_run'] : '—' ); ?></td>
-								<td>
-									<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
-										<input type="hidden" name="action" value="<?php echo esc_attr( self::RUN_ACTION ); ?>" />
-										<input type="hidden" name="source_id" value="<?php echo esc_attr( (string) $source_id ); ?>" />
-										<?php wp_nonce_field( self::RUN_ACTION ); ?>
-										<?php submit_button( __( 'Run', 'ewo-rss-engine' ), 'secondary small', 'submit', false ); ?>
-									</form>
-								</td>
-							</tr>
-						<?php endforeach; ?>
-					</tbody>
-				</table>
-			<?php endif; ?>
+								</p>
+							<?php else : ?>
+								<table class="ewo-dash-table">
+									<thead>
+										<tr>
+											<th><?php esc_html_e( 'Source', 'ewo-rss-engine' ); ?></th>
+											<th><?php esc_html_e( 'Feed URL', 'ewo-rss-engine' ); ?></th>
+											<th><?php esc_html_e( 'Status', 'ewo-rss-engine' ); ?></th>
+											<th><?php esc_html_e( 'Last Run', 'ewo-rss-engine' ); ?></th>
+											<th><?php esc_html_e( 'Actions', 'ewo-rss-engine' ); ?></th>
+										</tr>
+									</thead>
+									<tbody>
+										<?php foreach ( $source_ids as $source_id ) : ?>
+											<?php $settings = $this->sources->get_settings( $source_id ); ?>
+											<tr>
+												<td>
+													<a href="<?php echo esc_url( get_edit_post_link( $source_id ) ); ?>" class="ewo-dash-src-title-link">
+														<?php echo esc_html( $settings['name'] ); ?>
+													</a>
+												</td>
+												<td>
+													<code class="ewo-dash-code"><?php echo esc_html( $settings['feed_url'] ); ?></code>
+												</td>
+												<td>
+													<?php if ( $settings['enabled'] ) : ?>
+														<span class="ewo-dash-badge ewo-dash-badge--green"><?php esc_html_e( 'Enabled', 'ewo-rss-engine' ); ?></span>
+													<?php else : ?>
+														<span class="ewo-dash-badge ewo-dash-badge--grey"><?php esc_html_e( 'Disabled', 'ewo-rss-engine' ); ?></span>
+													<?php endif; ?>
+												</td>
+												<td class="ewo-dash-cell-muted ewo-dash-cell-nowrap">
+													<?php echo esc_html( '' !== $settings['last_run'] ? $settings['last_run'] : '—' ); ?>
+												</td>
+												<td>
+													<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="display:inline;">
+														<input type="hidden" name="action" value="<?php echo esc_attr( self::RUN_ACTION ); ?>" />
+														<input type="hidden" name="source_id" value="<?php echo esc_attr( (string) $source_id ); ?>" />
+														<?php wp_nonce_field( self::RUN_ACTION ); ?>
+														<button type="submit" class="button button-secondary button-small">
+															<?php esc_html_e( 'Run', 'ewo-rss-engine' ); ?>
+														</button>
+													</form>
+												</td>
+											</tr>
+										<?php endforeach; ?>
+									</tbody>
+								</table>
+							<?php endif; ?>
+						</div>
+					</div><!-- /Feed Sources -->
 
-			<h2><?php esc_html_e( 'Recent Activity', 'ewo-rss-engine' ); ?></h2>
-			<?php $this->render_logs_table( $logs ); ?>
-			<p>
-				<a href="<?php echo esc_url( admin_url( 'admin.php?page=' . self::LOGS_SLUG ) ); ?>">
-					<?php esc_html_e( 'View all logs', 'ewo-rss-engine' ); ?>
-				</a>
-			</p>
-		</div>
+					<!-- Recent Activity -->
+					<div class="ewo-dash-card">
+						<div class="ewo-dash-card-header">
+							<h2 class="ewo-dash-card-title"><?php esc_html_e( 'Recent Activity', 'ewo-rss-engine' ); ?></h2>
+							<a href="<?php echo esc_url( admin_url( 'admin.php?page=' . self::LOGS_SLUG ) ); ?>" class="ewo-dash-card-link">
+								<?php esc_html_e( 'View all logs →', 'ewo-rss-engine' ); ?>
+							</a>
+						</div>
+						<div class="ewo-dash-card-body ewo-dash-card-body--flush">
+							<?php if ( empty( $logs ) ) : ?>
+								<p class="ewo-dash-empty-msg"><?php esc_html_e( 'No activity logged yet.', 'ewo-rss-engine' ); ?></p>
+							<?php else : ?>
+								<table class="ewo-dash-table ewo-dash-log-table">
+									<thead>
+										<tr>
+											<th><?php esc_html_e( 'Time', 'ewo-rss-engine' ); ?></th>
+											<th><?php esc_html_e( 'Source', 'ewo-rss-engine' ); ?></th>
+											<th class="ewo-dash-th-num"><?php esc_html_e( 'Found', 'ewo-rss-engine' ); ?></th>
+											<th class="ewo-dash-th-num"><?php esc_html_e( 'Created', 'ewo-rss-engine' ); ?></th>
+											<th class="ewo-dash-th-num"><?php esc_html_e( 'Skipped', 'ewo-rss-engine' ); ?></th>
+											<th class="ewo-dash-th-num"><?php esc_html_e( 'Errors', 'ewo-rss-engine' ); ?></th>
+											<th><?php esc_html_e( 'Message', 'ewo-rss-engine' ); ?></th>
+										</tr>
+									</thead>
+									<tbody>
+										<?php foreach ( $logs as $entry ) : ?>
+											<?php $has_error = ( isset( $entry['errors'] ) && (int) $entry['errors'] > 0 ); ?>
+											<tr class="<?php echo $has_error ? 'ewo-dash-log-row--error' : ''; ?>">
+												<td class="ewo-dash-cell-nowrap ewo-dash-cell-muted"><?php echo esc_html( isset( $entry['time'] ) ? $entry['time'] : '' ); ?></td>
+												<td><?php echo esc_html( isset( $entry['source_name'] ) ? $entry['source_name'] : '' ); ?></td>
+												<td class="ewo-dash-cell-num"><?php echo esc_html( (string) ( isset( $entry['found'] ) ? $entry['found'] : 0 ) ); ?></td>
+												<td class="ewo-dash-cell-num ewo-dash-cell-created"><?php echo esc_html( (string) ( isset( $entry['created'] ) ? $entry['created'] : 0 ) ); ?></td>
+												<td class="ewo-dash-cell-num"><?php echo esc_html( (string) ( isset( $entry['skipped'] ) ? $entry['skipped'] : 0 ) ); ?></td>
+												<td class="ewo-dash-cell-num <?php echo $has_error ? 'ewo-dash-cell-error' : ''; ?>">
+													<?php echo esc_html( (string) ( isset( $entry['errors'] ) ? $entry['errors'] : 0 ) ); ?>
+												</td>
+												<td class="ewo-dash-cell-muted"><?php echo esc_html( isset( $entry['message'] ) ? $entry['message'] : '' ); ?></td>
+											</tr>
+										<?php endforeach; ?>
+									</tbody>
+								</table>
+							<?php endif; ?>
+						</div>
+					</div><!-- /Recent Activity -->
+
+				</div><!-- .ewo-dash-col-main -->
+
+				<!-- ==================== RIGHT COLUMN ==================== -->
+				<div class="ewo-dash-col-side">
+
+					<!-- Top Domains -->
+					<div class="ewo-dash-card">
+						<div class="ewo-dash-card-header">
+							<h2 class="ewo-dash-card-title"><?php esc_html_e( 'Top Domains', 'ewo-rss-engine' ); ?></h2>
+						</div>
+						<div class="ewo-dash-card-body">
+							<?php if ( empty( $top_domains ) ) : ?>
+								<p class="ewo-dash-empty-msg"><?php esc_html_e( 'No domains yet.', 'ewo-rss-engine' ); ?></p>
+							<?php else : ?>
+								<ul class="ewo-dash-side-list">
+									<?php foreach ( $top_domains as $td ) : ?>
+										<li class="ewo-dash-side-row ewo-dash-side-row--split">
+											<span class="ewo-dash-side-name"><?php echo esc_html( $td->name ); ?></span>
+											<span class="ewo-dash-side-count">
+												<?php echo esc_html( number_format_i18n( (int) $td->source_count ) ); ?>
+												<?php esc_html_e( 'sources', 'ewo-rss-engine' ); ?>
+											</span>
+										</li>
+									<?php endforeach; ?>
+								</ul>
+							<?php endif; ?>
+						</div>
+					</div><!-- /Top Domains -->
+
+					<!-- Recent Keywords -->
+					<div class="ewo-dash-card">
+						<div class="ewo-dash-card-header">
+							<h2 class="ewo-dash-card-title"><?php esc_html_e( 'Recent Keywords', 'ewo-rss-engine' ); ?></h2>
+							<a href="<?php echo esc_url( admin_url( 'admin.php?page=ewo-rss-domains' ) ); ?>" class="ewo-dash-card-link">
+								<?php esc_html_e( 'Manage →', 'ewo-rss-engine' ); ?>
+							</a>
+						</div>
+						<div class="ewo-dash-card-body">
+							<?php if ( empty( $recent_kws ) ) : ?>
+								<p class="ewo-dash-empty-msg"><?php esc_html_e( 'No keywords yet.', 'ewo-rss-engine' ); ?></p>
+							<?php else : ?>
+								<ul class="ewo-dash-side-list">
+									<?php foreach ( $recent_kws as $kw ) : ?>
+										<li class="ewo-dash-side-row">
+											<div class="ewo-dash-side-kw-name">
+												<?php echo esc_html( $kw->keyword ); ?>
+												<?php if ( ! $kw->active ) : ?>
+													<span class="ewo-dash-badge ewo-dash-badge--grey ewo-dash-badge--xs">
+														<?php esc_html_e( 'inactive', 'ewo-rss-engine' ); ?>
+													</span>
+												<?php endif; ?>
+											</div>
+											<div class="ewo-dash-side-kw-meta">
+												<?php if ( ! empty( $kw->subdomain_name ) ) : ?>
+													<?php echo esc_html( $kw->subdomain_name ); ?>
+													<?php if ( ! empty( $kw->domain_name ) ) : ?>
+														<span class="ewo-dash-sep">·</span><?php echo esc_html( $kw->domain_name ); ?>
+													<?php endif; ?>
+												<?php else : ?>
+													<?php echo esc_html( $kw->domain_name ?? '—' ); ?>
+												<?php endif; ?>
+											</div>
+										</li>
+									<?php endforeach; ?>
+								</ul>
+							<?php endif; ?>
+						</div>
+					</div><!-- /Recent Keywords -->
+
+					<!-- Quick Actions -->
+					<div class="ewo-dash-card">
+						<div class="ewo-dash-card-header">
+							<h2 class="ewo-dash-card-title"><?php esc_html_e( 'Quick Actions', 'ewo-rss-engine' ); ?></h2>
+						</div>
+						<div class="ewo-dash-card-body">
+							<div class="ewo-dash-quick-actions">
+
+								<a href="<?php echo esc_url( admin_url( 'admin.php?page=ewo-rss-domains' ) ); ?>"
+									class="button ewo-dash-quick-btn">
+									<span class="dashicons dashicons-networking" aria-hidden="true"></span>
+									<?php esc_html_e( 'Manage Strategic Domains', 'ewo-rss-engine' ); ?>
+								</a>
+
+								<a href="<?php echo esc_url( admin_url( 'edit.php?post_type=' . EWO_RSS_Sources::POST_TYPE ) ); ?>"
+									class="button ewo-dash-quick-btn">
+									<span class="dashicons dashicons-rss" aria-hidden="true"></span>
+									<?php esc_html_e( 'Manage Feed Sources', 'ewo-rss-engine' ); ?>
+								</a>
+
+								<a href="<?php echo esc_url( admin_url( 'admin.php?page=' . self::LOGS_SLUG ) ); ?>"
+									class="button ewo-dash-quick-btn">
+									<span class="dashicons dashicons-list-view" aria-hidden="true"></span>
+									<?php esc_html_e( 'View Import Logs', 'ewo-rss-engine' ); ?>
+								</a>
+
+								<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+									<input type="hidden" name="action" value="<?php echo esc_attr( self::RUN_ACTION ); ?>" />
+									<input type="hidden" name="source_id" value="0" />
+									<?php wp_nonce_field( self::RUN_ACTION ); ?>
+									<button type="submit" class="button ewo-dash-quick-btn ewo-dash-quick-btn--primary">
+										<span class="dashicons dashicons-update" aria-hidden="true"></span>
+										<?php esc_html_e( 'Run All Imports', 'ewo-rss-engine' ); ?>
+									</button>
+								</form>
+
+							</div>
+						</div>
+					</div><!-- /Quick Actions -->
+
+				</div><!-- .ewo-dash-col-side -->
+
+			</div><!-- .ewo-dash-body -->
+
+		</div><!-- .ewo-dash-wrap -->
 		<?php
 	}
 

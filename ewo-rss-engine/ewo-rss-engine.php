@@ -1,8 +1,8 @@
 <?php
 /**
  * Plugin Name: EWO RSS Engine
- * Description: Canonical content ingestion engine for EWO. Unified feed model, source attribution, native deduplication, feed health, import audit log, and a Feedzy compatibility layer.
- * Version: 0.4.0
+ * Description: Canonical content ingestion engine for EWO. Unified feed model, source attribution, native deduplication, feed health, import audit log, a Feedzy compatibility layer, and keyword-driven Google News feed generation with full-article Source capture.
+ * Version: 0.5.0
  * Author: EWO
  * Text Domain: ewo-rss-engine
  * Requires at least: 6.0
@@ -15,11 +15,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'EWO_RSS_ENGINE_VERSION', '0.4.0' );
+define( 'EWO_RSS_ENGINE_VERSION', '0.5.0' );
 define( 'EWO_RSS_ENGINE_FILE', __FILE__ );
 define( 'EWO_RSS_ENGINE_PATH', plugin_dir_path( __FILE__ ) );
 define( 'EWO_RSS_ENGINE_URL', plugin_dir_url( __FILE__ ) );
 define( 'EWO_RSS_ENGINE_CRON_HOOK', 'ewo_rss_engine_run' );
+define( 'EWO_RSS_ENGINE_KEYWORDS_CRON_HOOK', 'ewo_rss_engine_keywords_run' );
+define( 'EWO_RSS_ENGINE_KEYWORDS_SCHEDULE', 'ewo_rss_thirty_min' );
 
 // Canonical data layer + services.
 require_once EWO_RSS_ENGINE_PATH . 'includes/class-ewo-rss-meta.php';
@@ -27,6 +29,12 @@ require_once EWO_RSS_ENGINE_PATH . 'includes/class-ewo-rss-feed.php';
 require_once EWO_RSS_ENGINE_PATH . 'includes/class-ewo-rss-audit-log.php';
 require_once EWO_RSS_ENGINE_PATH . 'includes/class-ewo-rss-dedup.php';
 require_once EWO_RSS_ENGINE_PATH . 'includes/class-ewo-rss-ingest.php';
+
+// Keyword-driven feed generation + Source capture (data + services).
+require_once EWO_RSS_ENGINE_PATH . 'includes/class-ewo-rss-taxonomy.php';
+require_once EWO_RSS_ENGINE_PATH . 'includes/class-ewo-rss-source-store.php';
+require_once EWO_RSS_ENGINE_PATH . 'includes/class-ewo-rss-extractor.php';
+require_once EWO_RSS_ENGINE_PATH . 'includes/class-ewo-rss-keyword-feeds.php';
 
 // Components.
 require_once EWO_RSS_ENGINE_PATH . 'includes/class-ewo-rss-logs.php';
@@ -40,7 +48,27 @@ require_once EWO_RSS_ENGINE_PATH . 'includes/class-ewo-rss-frontend.php';
 require_once EWO_RSS_ENGINE_PATH . 'includes/class-ewo-rss-migrate.php';
 require_once EWO_RSS_ENGINE_PATH . 'includes/class-ewo-rss-admin-feeds.php';
 require_once EWO_RSS_ENGINE_PATH . 'includes/class-ewo-rss-admin-tools.php';
+require_once EWO_RSS_ENGINE_PATH . 'includes/class-ewo-rss-admin-keywords.php';
+require_once EWO_RSS_ENGINE_PATH . 'includes/class-ewo-rss-admin-sources.php';
+require_once EWO_RSS_ENGINE_PATH . 'includes/class-ewo-rss-admin-domains.php';
 require_once EWO_RSS_ENGINE_PATH . 'includes/class-ewo-rss-engine.php';
+
+/**
+ * Register a 30-minute cron interval for keyword-feed fetches.
+ *
+ * @param array<string,array<string,mixed>> $schedules Existing schedules.
+ * @return array<string,array<string,mixed>>
+ */
+function ewo_rss_engine_cron_schedules( $schedules ) {
+	if ( ! isset( $schedules[ EWO_RSS_ENGINE_KEYWORDS_SCHEDULE ] ) ) {
+		$schedules[ EWO_RSS_ENGINE_KEYWORDS_SCHEDULE ] = array(
+			'interval' => 30 * MINUTE_IN_SECONDS,
+			'display'  => __( 'Every 30 Minutes (EWO RSS keyword feeds)', 'ewo-rss-engine' ),
+		);
+	}
+	return $schedules;
+}
+add_filter( 'cron_schedules', 'ewo_rss_engine_cron_schedules' );
 
 /**
  * Flush cached feed-visibility lists (called when feed status changes).
@@ -68,18 +96,25 @@ function ewo_rss_engine_activate() {
 	flush_rewrite_rules();
 
 	EWO_RSS_Audit_Log::maybe_install();
+	EWO_RSS_Taxonomy::maybe_install();
+	EWO_RSS_Source_Store::maybe_install();
 
 	if ( ! wp_next_scheduled( EWO_RSS_ENGINE_CRON_HOOK ) ) {
 		wp_schedule_event( time() + 300, 'hourly', EWO_RSS_ENGINE_CRON_HOOK );
+	}
+
+	if ( ! wp_next_scheduled( EWO_RSS_ENGINE_KEYWORDS_CRON_HOOK ) ) {
+		wp_schedule_event( time() + 300, EWO_RSS_ENGINE_KEYWORDS_SCHEDULE, EWO_RSS_ENGINE_KEYWORDS_CRON_HOOK );
 	}
 }
 register_activation_hook( __FILE__, 'ewo_rss_engine_activate' );
 
 /**
- * Deactivation: clear the scheduled cron.
+ * Deactivation: clear the scheduled cron hooks.
  */
 function ewo_rss_engine_deactivate() {
 	wp_clear_scheduled_hook( EWO_RSS_ENGINE_CRON_HOOK );
+	wp_clear_scheduled_hook( EWO_RSS_ENGINE_KEYWORDS_CRON_HOOK );
 	flush_rewrite_rules();
 }
 register_deactivation_hook( __FILE__, 'ewo_rss_engine_deactivate' );
