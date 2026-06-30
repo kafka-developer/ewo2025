@@ -246,14 +246,18 @@
 	font-weight: 900;
 }
 
-.ewo-domain-feed__title {
+.ewo-domain-feed__title,
+.ewo-domain-feed__title:link,
+.ewo-domain-feed__title:visited {
 	color: var(--ewo-silver);
 	text-decoration: none;
+	transition: color 160ms ease;
 }
 
 .ewo-domain-feed__title:hover,
 .ewo-domain-feed__title:focus {
 	color: var(--ewo-white);
+	text-decoration: none;
 }
 
 .ewo-domain-feed__empty {
@@ -286,7 +290,7 @@
 }
 
 .ewo-prediction-card::before {
-	background: linear-gradient(180deg, var(--ewo-gold), rgba(0, 163, 255, 0.6));
+	background: linear-gradient(180deg, var(--ewo-gold), rgba(215, 168, 75, 0.3));
 	bottom: 0;
 	content: "";
 	left: 0;
@@ -296,9 +300,84 @@
 }
 
 .ewo-prediction-card:hover {
-	border-color: rgba(0, 163, 255, 0.4);
-	box-shadow: 0 18px 50px rgba(0, 163, 255, 0.12);
+	border-color: rgba(215, 168, 75, 0.35);
+	box-shadow: 0 18px 50px rgba(215, 168, 75, 0.1);
 	transform: translateY(-3px);
+}
+
+/* Full-card click overlay */
+.ewo-prediction-card__overlay {
+	bottom: 0;
+	left: 0;
+	position: absolute;
+	right: 0;
+	top: 0;
+	z-index: 0;
+}
+
+/* Meta row: type tag + status dot */
+.ewo-prediction-card__meta-row {
+	align-items: center;
+	display: flex;
+	justify-content: space-between;
+	gap: 8px;
+	position: relative;
+	z-index: 1;
+}
+
+.ewo-prediction-card__status-dot {
+	border-radius: 50%;
+	display: inline-block;
+	flex: 0 0 auto;
+	height: 8px;
+	width: 8px;
+}
+
+/* Title link */
+.ewo-prediction-card__title-link,
+.ewo-prediction-card__title-link:link,
+.ewo-prediction-card__title-link:visited {
+	color: #ffffff;
+	position: relative;
+	text-decoration: none;
+	transition: color 160ms ease;
+	z-index: 1;
+}
+
+.ewo-prediction-card__title-link:hover,
+.ewo-prediction-card__title-link:focus {
+	color: var(--ewo-gold);
+}
+
+/* Card footer: domain · confidence · date */
+.ewo-prediction-card__footer {
+	align-items: center;
+	border-top: 1px solid rgba(216, 224, 234, 0.1);
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px 12px;
+	margin-top: auto;
+	padding-top: 12px;
+	position: relative;
+	z-index: 1;
+}
+
+.ewo-prediction-card__domain {
+	color: var(--ewo-muted);
+	font-size: 0.72rem;
+	letter-spacing: 0.03em;
+}
+
+.ewo-prediction-card__confidence {
+	font-size: 0.75rem;
+	font-variant-numeric: tabular-nums;
+	font-weight: 700;
+}
+
+.ewo-prediction-card__date {
+	color: rgba(174, 187, 204, 0.5);
+	font-size: 0.72rem;
+	margin-left: auto;
 }
 
 .ewo-prediction-card__tag {
@@ -350,7 +429,7 @@
  * 7. Latest Analysis — featured-large + smaller grid
  * ============================================================ */
 .ewo-analysis-grid {
-	align-items: stretch;
+	align-items: start;
 	display: grid;
 	gap: 24px;
 	grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
@@ -484,7 +563,7 @@ a.ewo-connect-card:focus-visible {
  * 9. Book
  * ============================================================ */
 .ewo-book-v1 {
-	align-items: center;
+	align-items: start;
 	display: grid;
 	gap: clamp(24px, 4vw, 48px);
 	grid-template-columns: 190px minmax(0, 1fr);
@@ -537,45 +616,13 @@ a.ewo-connect-card:focus-visible {
 	}
 }
 
-/* ============================================================
- * 10. Footer newsletter band (moved from homepage)
- * ============================================================ */
-.site-footer__newsletter {
-	align-items: center;
-	border-bottom: 1px solid var(--ewo-border);
-	display: grid;
-	gap: clamp(20px, 3vw, 40px);
-	grid-template-columns: minmax(0, 1fr) auto;
-	padding: clamp(24px, 4vw, 40px) 0;
+/* Outside the sidebar layout the book card uses the standard .ewo-section container
+   (1180px centered), same as the footer — this adds vertical separation. */
+.site-main--home > .ewo-section.ewo-book-section {
+	margin-bottom: clamp(40px, 5vw, 72px);
+	margin-top: clamp(40px, 5vw, 72px);
 }
 
-.site-footer__newsletter-kicker {
-	color: var(--ewo-gold);
-	font-size: 0.74rem;
-	font-weight: 900;
-	letter-spacing: 0.12em;
-	margin: 0 0 8px;
-	text-transform: uppercase;
-}
-
-.site-footer__newsletter-title {
-	color: var(--ewo-white);
-	font-family: Georgia, "Times New Roman", serif;
-	font-size: clamp(1.3rem, 2.2vw, 1.8rem);
-	margin: 0 0 6px;
-}
-
-.site-footer__newsletter-text {
-	color: var(--ewo-muted);
-	margin: 0;
-	max-width: 520px;
-}
-
-@media (max-width: 760px) {
-	.site-footer__newsletter {
-		grid-template-columns: 1fr;
-	}
-}
 
 /* ============================================================
  * Homepage sidebar widget system (two-column sticky layout)
@@ -774,7 +821,9 @@ a.ewo-connect-card:focus-visible {
 /* Latest Analysis: featured fills the left column; the right-side cards form an
    equal-height 2-column grid. No fixed card heights — every thumbnail is a clean
    16:9 (defined on .ewo-briefing-card__media), so images stay consistent. */
-.ewo-analysis-grid > .ewo-briefing-card--featured,
+.ewo-analysis-grid > .ewo-briefing-card--featured {
+	height: auto;
+}
 .ewo-analysis-grid__secondary > .ewo-briefing-card {
 	height: 100%;
 }

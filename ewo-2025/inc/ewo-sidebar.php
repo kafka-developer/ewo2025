@@ -104,6 +104,11 @@ function ewo_2025_sidebar_cards() {
 		$card['id']      = $id;
 		$card['enabled'] = ! empty( $cfg['enabled'] );
 		$card['order']   = isset( $cfg['order'] ) ? (int) $cfg['order'] : 99;
+
+		// Global feature visibility override (suppresses entire card + title).
+		if ( 'follow' === $id && ! ewo_2025_feature_enabled( 'sidebar_social' ) ) {
+			$card['enabled'] = false;
+		}
 	}
 	unset( $card );
 

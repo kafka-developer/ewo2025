@@ -23,7 +23,7 @@ class EWO_RSS_Admin_Sources {
 	const STATUS_ACTION = 'ewo_rss_source_status';
 	const NONCE         = 'ewo_rss_source_status_nonce';
 	const NOTICE_KEY    = 'ewo_rss_src_notice_';
-	const PER_PAGE      = 20;
+	const PER_PAGE      = 10;
 	const SHORTCODE     = 'ewo_sources';
 
 	/** Columns allowed as orderby targets. */
@@ -211,42 +211,98 @@ class EWO_RSS_Admin_Sources {
 					</tbody>
 				</table>
 
-				<div class="tablenav">
-					<div class="tablenav-pages">
-						<?php
-						if ( $total > 0 ) {
-							printf(
-								'<span class="displaying-num">%s</span>',
-								esc_html(
-									sprintf(
-										/* translators: %d total */
-										_n( '%d item', '%d items', $total, 'ewo-rss-engine' ),
-										$total
-									)
-								)
-							);
-						}
+				<?php $this->render_pagination( $paged, $pages, $total, $base_filter_args ); ?>
+			<?php endif; ?>
+		</div>
+		<?php
+	}
 
-						if ( $pages > 1 ) {
-							echo wp_kses_post(
-								paginate_links(
-									array(
-										'base'      => add_query_arg(
-											array_merge( $base_filter_args, array( 'page' => self::MENU_SLUG, 'paged' => '%#%' ) ),
-											admin_url( 'admin.php' )
-										),
-										'format'    => '',
-										'current'   => $paged,
-										'total'     => $pages,
-										'prev_text' => '&laquo;',
-										'next_text' => '&raquo;',
-									)
-								)
-							);
-						}
-						?>
-					</div>
-				</div>
+	/* ---------------------------------------------------------------------
+	 * Pagination
+	 * ------------------------------------------------------------------- */
+
+	/**
+	 * Build a page URL preserving current filters.
+	 *
+	 * @param int                  $page      Target page number.
+	 * @param array<string,mixed>  $base_args Current filter args (no 'paged').
+	 * @return string
+	 */
+	protected function paged_url( $page, array $base_args ) {
+		return add_query_arg(
+			array_merge( $base_args, array( 'page' => self::MENU_SLUG, 'paged' => $page ) ),
+			admin_url( 'admin.php' )
+		);
+	}
+
+	/**
+	 * Render a custom paginator: sliding window of 10 page numbers + Prev/Next.
+	 *
+	 * Shows the block of 10 pages that contains $paged, with ellipsis on either
+	 * side when there are pages outside the current block.
+	 *
+	 * @param int                  $paged      Current page number.
+	 * @param int                  $pages      Total number of pages.
+	 * @param int                  $total      Total number of rows (for the count label).
+	 * @param array<string,mixed>  $base_args  Filter args to preserve across pages.
+	 */
+	protected function render_pagination( $paged, $pages, $total, array $base_args ) {
+		if ( $pages <= 1 && $total === 0 ) {
+			return;
+		}
+
+		$block_size  = 10;
+		$block_start = (int) ( floor( ( $paged - 1 ) / $block_size ) * $block_size ) + 1;
+		$block_end   = min( $block_start + $block_size - 1, $pages );
+
+		$prev_url = $paged > 1 ? $this->paged_url( $paged - 1, $base_args ) : '';
+		$next_url = $paged < $pages ? $this->paged_url( $paged + 1, $base_args ) : '';
+		?>
+		<div class="ewo-src-pgbar">
+			<span class="ewo-src-pg-count">
+				<?php
+				echo esc_html(
+					sprintf(
+						/* translators: %d total rows */
+						_n( '%d item', '%d items', $total, 'ewo-rss-engine' ),
+						$total
+					)
+				);
+				?>
+			</span>
+
+			<?php if ( $pages > 1 ) : ?>
+			<nav class="ewo-src-pagination" aria-label="<?php esc_attr_e( 'Sources pagination', 'ewo-rss-engine' ); ?>">
+
+				<?php if ( $prev_url ) : ?>
+					<a href="<?php echo esc_url( $prev_url ); ?>" class="ewo-pg-btn ewo-pg-nav">&laquo; <?php esc_html_e( 'Previous', 'ewo-rss-engine' ); ?></a>
+				<?php else : ?>
+					<span class="ewo-pg-btn ewo-pg-nav ewo-pg-disabled" aria-disabled="true">&laquo; <?php esc_html_e( 'Previous', 'ewo-rss-engine' ); ?></span>
+				<?php endif; ?>
+
+				<?php if ( $block_start > 1 ) : ?>
+					<span class="ewo-pg-btn ewo-pg-dots" aria-hidden="true">&hellip;</span>
+				<?php endif; ?>
+
+				<?php for ( $i = $block_start; $i <= $block_end; $i++ ) : ?>
+					<?php if ( $i === $paged ) : ?>
+						<span class="ewo-pg-btn ewo-pg-current" aria-current="page"><?php echo esc_html( (string) $i ); ?></span>
+					<?php else : ?>
+						<a href="<?php echo esc_url( $this->paged_url( $i, $base_args ) ); ?>" class="ewo-pg-btn"><?php echo esc_html( (string) $i ); ?></a>
+					<?php endif; ?>
+				<?php endfor; ?>
+
+				<?php if ( $block_end < $pages ) : ?>
+					<span class="ewo-pg-btn ewo-pg-dots" aria-hidden="true">&hellip;</span>
+				<?php endif; ?>
+
+				<?php if ( $next_url ) : ?>
+					<a href="<?php echo esc_url( $next_url ); ?>" class="ewo-pg-btn ewo-pg-nav"><?php esc_html_e( 'Next', 'ewo-rss-engine' ); ?> &raquo;</a>
+				<?php else : ?>
+					<span class="ewo-pg-btn ewo-pg-nav ewo-pg-disabled" aria-disabled="true"><?php esc_html_e( 'Next', 'ewo-rss-engine' ); ?> &raquo;</span>
+				<?php endif; ?>
+
+			</nav>
 			<?php endif; ?>
 		</div>
 		<?php
@@ -291,7 +347,7 @@ class EWO_RSS_Admin_Sources {
 	}
 
 	/**
-	 * Render the filter bar.
+	 * Render the filter bar with cascading Domain → Subdomain → Keyword dropdowns.
 	 *
 	 * @param int    $domain_id    Selected domain.
 	 * @param int    $subdomain_id Selected subdomain.
@@ -303,32 +359,43 @@ class EWO_RSS_Admin_Sources {
 		$subdomains = EWO_RSS_Taxonomy::get_subdomains();
 		$keywords   = EWO_RSS_Taxonomy::get_keywords();
 		?>
-		<form method="get" class="ewo-src-filter-form">
+		<form method="get" class="ewo-src-filter-form" id="ewo-src-filter-form">
 			<input type="hidden" name="page" value="<?php echo esc_attr( self::MENU_SLUG ); ?>" />
 
-			<select name="domain_id">
+			<select name="domain_id" id="ewo-src-domain">
 				<option value="0"><?php esc_html_e( 'All Domains', 'ewo-rss-engine' ); ?></option>
 				<?php foreach ( $domains as $d ) : ?>
-					<option value="<?php echo esc_attr( (string) $d->id ); ?>" <?php selected( $domain_id, (int) $d->id ); ?>><?php echo esc_html( $d->name ); ?></option>
+					<option value="<?php echo esc_attr( (string) $d->id ); ?>" <?php selected( $domain_id, (int) $d->id ); ?>>
+						<?php echo esc_html( $d->name ); ?>
+					</option>
 				<?php endforeach; ?>
 			</select>
 
-			<select name="subdomain_id">
+			<select name="subdomain_id" id="ewo-src-subdomain">
 				<option value="0"><?php esc_html_e( 'All Subdomains', 'ewo-rss-engine' ); ?></option>
 				<?php foreach ( $subdomains as $s ) : ?>
-					<option value="<?php echo esc_attr( (string) $s->id ); ?>" <?php selected( $subdomain_id, (int) $s->id ); ?>><?php echo esc_html( $s->name ); ?></option>
+					<option value="<?php echo esc_attr( (string) $s->id ); ?>"
+						data-domain="<?php echo esc_attr( (string) $s->domain_id ); ?>"
+						<?php selected( $subdomain_id, (int) $s->id ); ?>>
+						<?php echo esc_html( $s->name ); ?>
+					</option>
 				<?php endforeach; ?>
 			</select>
 
-			<select name="keyword_id">
+			<select name="keyword_id" id="ewo-src-keyword">
 				<option value="0"><?php esc_html_e( 'All Keywords', 'ewo-rss-engine' ); ?></option>
 				<?php foreach ( $keywords as $k ) : ?>
-					<option value="<?php echo esc_attr( (string) $k->id ); ?>" <?php selected( $keyword_id, (int) $k->id ); ?>><?php echo esc_html( $k->keyword ); ?></option>
+					<option value="<?php echo esc_attr( (string) $k->id ); ?>"
+						data-subdomain="<?php echo esc_attr( (string) $k->subdomain_id ); ?>"
+						<?php selected( $keyword_id, (int) $k->id ); ?>>
+						<?php echo esc_html( $k->keyword ); ?>
+					</option>
 				<?php endforeach; ?>
 			</select>
 
-			<select name="status">
-				<option value=""><?php esc_html_e( 'All Statuses', 'ewo-rss-engine' ); ?></option>
+			<span class="ewo-src-filter-label"><?php esc_html_e( 'Review Status:', 'ewo-rss-engine' ); ?></span>
+			<select name="status" id="ewo-src-status">
+				<option value=""><?php esc_html_e( 'All', 'ewo-rss-engine' ); ?></option>
 				<?php foreach ( EWO_RSS_Source_Store::statuses() as $s ) : ?>
 					<option value="<?php echo esc_attr( $s ); ?>" <?php selected( $status, $s ); ?>><?php echo esc_html( ucfirst( $s ) ); ?></option>
 				<?php endforeach; ?>
@@ -337,6 +404,51 @@ class EWO_RSS_Admin_Sources {
 			<?php submit_button( __( 'Filter', 'ewo-rss-engine' ), 'secondary', 'submit', false ); ?>
 			<a href="<?php echo esc_url( admin_url( 'admin.php?page=' . self::MENU_SLUG ) ); ?>" class="button-link"><?php esc_html_e( 'Reset', 'ewo-rss-engine' ); ?></a>
 		</form>
+
+		<script>
+		(function () {
+			var domainSel   = document.getElementById( 'ewo-src-domain' );
+			var subSel      = document.getElementById( 'ewo-src-subdomain' );
+			var kwSel       = document.getElementById( 'ewo-src-keyword' );
+			if ( ! domainSel || ! subSel || ! kwSel ) { return; }
+
+			function applySubFilter() {
+				var domainId = parseInt( domainSel.value, 10 );
+				var opts = subSel.options;
+				for ( var i = 1; i < opts.length; i++ ) {
+					var match = ( domainId === 0 || parseInt( opts[ i ].dataset.domain, 10 ) === domainId );
+					opts[ i ].hidden   = ! match;
+					opts[ i ].disabled = ! match;
+				}
+				if ( subSel.selectedIndex > 0 && subSel.options[ subSel.selectedIndex ].hidden ) {
+					subSel.value = '0';
+				}
+			}
+
+			function applyKwFilter() {
+				var subId = parseInt( subSel.value, 10 );
+				var opts  = kwSel.options;
+				for ( var i = 1; i < opts.length; i++ ) {
+					var match = ( subId === 0 || parseInt( opts[ i ].dataset.subdomain, 10 ) === subId );
+					opts[ i ].hidden   = ! match;
+					opts[ i ].disabled = ! match;
+				}
+				if ( kwSel.selectedIndex > 0 && kwSel.options[ kwSel.selectedIndex ].hidden ) {
+					kwSel.value = '0';
+				}
+			}
+
+			domainSel.addEventListener( 'change', function () {
+				applySubFilter();
+				applyKwFilter();
+			} );
+			subSel.addEventListener( 'change', applyKwFilter );
+
+			// Apply on page load to respect pre-selected values.
+			applySubFilter();
+			applyKwFilter();
+		} )();
+		</script>
 		<?php
 	}
 

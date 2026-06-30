@@ -19,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class EWO_RSS_Taxonomy {
 	const SCHEMA_OPTION  = 'ewo_rss_taxonomy_schema';
-	const SCHEMA_VERSION = '1';
+	const SCHEMA_VERSION = '2';
 
 	/**
 	 * Domains table name.
@@ -68,6 +68,7 @@ class EWO_RSS_Taxonomy {
 		$sql_domains = "CREATE TABLE $domains (
 			id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
 			name VARCHAR(191) NOT NULL DEFAULT '',
+			description TEXT NOT NULL DEFAULT '',
 			created_at DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00',
 			updated_at DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00',
 			PRIMARY KEY (id),
@@ -139,10 +140,11 @@ class EWO_RSS_Taxonomy {
 	/**
 	 * Insert a domain.
 	 *
-	 * @param string $name Domain name.
+	 * @param string $name        Domain name.
+	 * @param string $description Optional description.
 	 * @return int New ID, or 0.
 	 */
-	public static function add_domain( $name ) {
+	public static function add_domain( $name, $description = '' ) {
 		global $wpdb;
 		self::maybe_install();
 		$name = self::clean_name( $name );
@@ -153,11 +155,12 @@ class EWO_RSS_Taxonomy {
 		$wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 			self::domains_table(),
 			array(
-				'name'       => $name,
-				'created_at' => $now,
-				'updated_at' => $now,
+				'name'        => $name,
+				'description' => sanitize_textarea_field( (string) $description ),
+				'created_at'  => $now,
+				'updated_at'  => $now,
 			),
-			array( '%s', '%s', '%s' )
+			array( '%s', '%s', '%s', '%s' )
 		);
 		return (int) $wpdb->insert_id;
 	}

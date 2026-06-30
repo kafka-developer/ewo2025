@@ -1,0 +1,536 @@
+/*
+ * EWO 2025 — Strategic Domains public page styles.
+ * Loaded only on /strategic-domains/ and /strategic-domains/{slug}/.
+ */
+
+/* ================================================================
+   Container + page shell
+   ================================================================ */
+
+.ewo-sfd-main {
+	background: var(--ewo-navy);
+	min-height: 60vh;
+}
+
+.ewo-sfd-container {
+	margin: 0 auto;
+	max-width: var(--ewo-max-width);
+	padding-left:  clamp(16px, 4vw, 48px);
+	padding-right: clamp(16px, 4vw, 48px);
+	width: 100%;
+}
+
+/* ================================================================
+   Hero banner (index page)
+   ================================================================ */
+
+.ewo-sfd-hero {
+	border-bottom: 1px solid var(--ewo-border);
+	padding: clamp(48px, 7vw, 88px) 0 clamp(32px, 5vw, 60px);
+	text-align: center;
+}
+
+.ewo-sfd-hero-title {
+	color: var(--ewo-white);
+	font-family: Georgia, "Times New Roman", serif;
+	font-size: clamp(2.2rem, 4.5vw, 3.4rem);
+	font-weight: normal;
+	line-height: 1.15;
+	margin: 8px 0 16px;
+}
+
+.ewo-sfd-hero-desc {
+	color: var(--ewo-muted);
+	font-size: 1rem;
+	line-height: 1.7;
+	margin: 0 auto;
+	max-width: 60ch;
+}
+
+/* ================================================================
+   Index body
+   ================================================================ */
+
+.ewo-sfd-index-body {
+	padding-bottom: clamp(56px, 8vw, 100px);
+	padding-top:    clamp(32px, 5vw, 56px);
+}
+
+/* ================================================================
+   Card grid
+   ================================================================ */
+
+.ewo-sfd-grid {
+	display: grid;
+	align-items: stretch;
+	gap: 20px;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+@media (max-width: 960px) {
+	.ewo-sfd-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 580px) {
+	.ewo-sfd-grid { grid-template-columns: 1fr; }
+}
+
+/* ================================================================
+   Domain card
+   ================================================================ */
+
+.ewo-sfd-card {
+	background: linear-gradient(160deg, rgba(16, 35, 61, 0.78) 0%, rgba(5, 14, 27, 0.97) 100%);
+	border: 1px solid var(--ewo-border);
+	border-radius: 10px;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	position: relative;
+	transition: border-color 200ms ease, box-shadow 200ms ease, transform 200ms ease;
+}
+
+.ewo-sfd-card:hover {
+	border-color: rgba(215, 168, 75, 0.35);
+	box-shadow: 0 20px 56px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(215, 168, 75, 0.1);
+	transform: translateY(-3px);
+}
+
+/* Invisible full-card overlay — sits below all text (z-index 0) */
+.ewo-sfd-card-overlay {
+	bottom: 0;
+	left: 0;
+	position: absolute;
+	right: 0;
+	top: 0;
+	z-index: 0;
+}
+
+/* ----------------------------------------------------------------
+   Card body
+   ---------------------------------------------------------------- */
+
+.ewo-sfd-card-body {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+	padding: 24px 24px 16px;
+	position: relative;
+	z-index: 1;
+}
+
+/* Domain name */
+.ewo-sfd-card-title {
+	color: var(--ewo-white);
+	font-family: Georgia, "Times New Roman", serif;
+	font-size: 1.18rem;
+	font-weight: normal;
+	line-height: 1.25;
+	margin: 0 0 8px;
+}
+
+/* ── dedicated class on the <a> — beats any theme link rule ── */
+.ewo-domain-title-link,
+.ewo-domain-title-link:link,
+.ewo-domain-title-link:visited,
+.ewo-sfd-card-title .ewo-domain-title-link,
+.ewo-sfd-card-title .ewo-domain-title-link:link,
+.ewo-sfd-card-title .ewo-domain-title-link:visited {
+	color: #ffffff;
+	position: relative;
+	text-decoration: none !important;
+	transition: color 160ms ease;
+	z-index: 1;
+}
+
+.ewo-domain-title-link:hover,
+.ewo-domain-title-link:focus,
+.ewo-sfd-card-title .ewo-domain-title-link:hover,
+.ewo-sfd-card-title .ewo-domain-title-link:focus {
+	color: #d7a84b;
+	text-decoration: none !important;
+}
+
+/* fallback for any anchor without the dedicated class */
+.ewo-sfd-card-title a,
+.ewo-sfd-card-title a:link,
+.ewo-sfd-card-title a:visited {
+	color: #ffffff;
+	text-decoration: none;
+	transition: color 160ms ease;
+}
+
+.ewo-sfd-card-title a:hover,
+.ewo-sfd-card-title a:focus {
+	color: #d7a84b;
+	text-decoration: none;
+}
+
+/* Description */
+.ewo-sfd-card-desc {
+	color: var(--ewo-muted);
+	font-size: 0.82rem;
+	line-height: 1.6;
+	margin: 0 0 16px;
+}
+
+.ewo-sfd-card-desc--empty {
+	color: rgba(174, 187, 204, 0.35);
+	font-style: italic;
+}
+
+/* ----------------------------------------------------------------
+   Source list inside card
+   ---------------------------------------------------------------- */
+
+.ewo-sfd-card-sources {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+	gap: 12px;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.ewo-sfd-card-source {
+	display: flex;
+	flex-direction: column;
+	gap: 0;
+	padding-left: 14px;
+	position: relative;
+}
+
+/* Gold bullet */
+.ewo-sfd-card-source::before {
+	color: var(--ewo-gold);
+	content: "•";
+	font-size: 0.75rem;
+	left: 0;
+	line-height: 1.55;
+	position: absolute;
+	top: 0;
+}
+
+.ewo-sfd-card-source-link,
+.ewo-sfd-card-source-link:link,
+.ewo-sfd-card-source-link:visited {
+	color: var(--ewo-silver);
+	font-size: 0.83rem;
+	line-height: 1.5;
+	position: relative;
+	text-decoration: none;
+	transition: color 140ms ease;
+	z-index: 1;
+}
+
+.ewo-sfd-card-source-link:hover,
+.ewo-sfd-card-source-link:focus {
+	color: var(--ewo-white);
+	text-decoration: none;
+}
+
+/* Source · date — on its own line below the title */
+.ewo-sfd-card-source-meta {
+	color: rgba(174, 187, 204, 0.45);
+	display: block;
+	font-size: 0.72rem;
+	letter-spacing: 0.01em;
+	margin-top: 3px;
+}
+
+.ewo-sfd-card-empty {
+	color: rgba(174, 187, 204, 0.35);
+	flex: 1;
+	font-size: 0.82rem;
+	font-style: italic;
+	margin: 0;
+}
+
+/* ----------------------------------------------------------------
+   Card footer — stats row
+   ---------------------------------------------------------------- */
+
+.ewo-sfd-card-footer {
+	align-items: center;
+	border-top: 1px solid rgba(216, 224, 234, 0.1);
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px 16px;
+	padding: 12px 24px;
+	position: relative;
+	z-index: 1;
+}
+
+.ewo-sfd-card-stat {
+	color: rgba(174, 187, 204, 0.6);
+	font-size: 0.74rem;
+	letter-spacing: 0.02em;
+}
+
+.ewo-sfd-card-stat strong {
+	color: var(--ewo-gold);
+	font-variant-numeric: tabular-nums;
+	font-weight: 700;
+	margin-right: 3px;
+}
+
+.ewo-sfd-card-cta,
+.ewo-sfd-card-cta:link,
+.ewo-sfd-card-cta:visited {
+	color: var(--ewo-gold);
+	font-size: 0.74rem;
+	font-weight: 700;
+	letter-spacing: 0.06em;
+	margin-left: auto;
+	position: relative;
+	text-decoration: none;
+	text-transform: uppercase;
+	transition: color 140ms ease;
+	z-index: 1;
+}
+
+.ewo-sfd-card-cta:hover,
+.ewo-sfd-card-cta:focus {
+	color: var(--ewo-white);
+	text-decoration: none;
+}
+
+/* ================================================================
+   No-domains empty state (index)
+   ================================================================ */
+
+.ewo-sfd-no-domains {
+	padding: 56px 0;
+	text-align: center;
+}
+
+.ewo-sfd-no-domains p {
+	color: var(--ewo-muted);
+	font-size: 1rem;
+	margin-bottom: 24px;
+}
+
+/* ================================================================
+   Detail page header
+   ================================================================ */
+
+.ewo-sfd-back,
+.ewo-sfd-back:link,
+.ewo-sfd-back:visited {
+	color: var(--ewo-muted);
+	display: inline-block;
+	font-size: 0.84rem;
+	margin-top: clamp(24px, 4vw, 48px);
+	text-decoration: none;
+	transition: color 140ms ease;
+}
+
+.ewo-sfd-back:hover,
+.ewo-sfd-back:focus {
+	color: var(--ewo-gold);
+	text-decoration: none;
+}
+
+.ewo-sfd-detail-header {
+	border-bottom: 1px solid var(--ewo-border);
+	margin-bottom: clamp(28px, 5vw, 52px);
+	padding: clamp(20px, 4vw, 44px) 0 clamp(20px, 4vw, 40px);
+}
+
+.ewo-sfd-detail-title {
+	color: var(--ewo-white);
+	font-family: Georgia, "Times New Roman", serif;
+	font-size: clamp(1.8rem, 4vw, 3rem);
+	font-weight: normal;
+	line-height: 1.15;
+	margin: 8px 0 14px;
+}
+
+.ewo-sfd-detail-desc {
+	color: var(--ewo-muted);
+	font-size: 1rem;
+	line-height: 1.7;
+	margin: 0;
+	max-width: 70ch;
+}
+
+/* ================================================================
+   Subdomain blocks (detail page)
+   ================================================================ */
+
+.ewo-sfd-subdomains {
+	display: grid;
+	gap: 24px;
+	padding-bottom: clamp(56px, 8vw, 100px);
+}
+
+.ewo-sfd-subdomain-block {
+	background: linear-gradient(160deg, rgba(16, 35, 61, 0.6), rgba(5, 14, 27, 0.88));
+	border: 1px solid var(--ewo-border);
+	border-radius: 10px;
+	padding: clamp(20px, 3vw, 32px);
+}
+
+.ewo-sfd-subdomain-title {
+	border-bottom: 1px solid rgba(216, 224, 234, 0.1);
+	color: var(--ewo-white);
+	font-family: Georgia, "Times New Roman", serif;
+	font-size: 1.2rem;
+	font-weight: normal;
+	line-height: 1.25;
+	margin: 0 0 18px;
+	padding-bottom: 14px;
+}
+
+/* Gold section label */
+.ewo-sfd-label {
+	color: var(--ewo-gold);
+	font-size: 0.68rem;
+	font-weight: 800;
+	letter-spacing: 0.12em;
+	margin: 0 0 10px;
+	text-transform: uppercase;
+}
+
+/* ----------------------------------------------------------------
+   Keywords section (detail)
+   ---------------------------------------------------------------- */
+
+.ewo-sfd-kw-section {
+	margin-bottom: 20px;
+}
+
+.ewo-sfd-kw-list {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.ewo-sfd-kw-item {
+	align-items: center;
+	background: rgba(255, 255, 255, 0.04);
+	border: 1px solid rgba(216, 224, 234, 0.14);
+	border-radius: 4px;
+	display: inline-flex;
+	gap: 5px;
+	padding: 3px 9px;
+}
+
+.ewo-sfd-kw-item--inactive {
+	background: rgba(255, 255, 255, 0.03);
+	border-color: rgba(255, 255, 255, 0.08);
+	opacity: 0.5;
+}
+
+.ewo-sfd-kw-name {
+	color: var(--ewo-silver);
+	font-size: 0.82rem;
+}
+
+.ewo-sfd-feed-link,
+.ewo-sfd-feed-link:link,
+.ewo-sfd-feed-link:visited {
+	background: rgba(215, 168, 75, 0.1);
+	border-radius: 3px;
+	color: var(--ewo-gold);
+	font-size: 0.67rem;
+	font-weight: 700;
+	letter-spacing: 0.04em;
+	padding: 1px 5px;
+	text-decoration: none;
+	text-transform: uppercase;
+	transition: background 140ms ease, color 140ms ease;
+}
+
+.ewo-sfd-feed-link:hover,
+.ewo-sfd-feed-link:focus {
+	background: rgba(215, 168, 75, 0.2);
+	color: var(--ewo-white);
+}
+
+.ewo-sfd-kw-inactive {
+	color: var(--ewo-muted);
+	font-size: 0.68rem;
+	font-style: italic;
+}
+
+/* ----------------------------------------------------------------
+   Sources section (detail)
+   ---------------------------------------------------------------- */
+
+.ewo-sfd-sources-section {
+	border-top: 1px solid rgba(216, 224, 234, 0.07);
+	margin-top: 20px;
+	padding-top: 18px;
+}
+
+.ewo-sfd-source-list {
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.ewo-sfd-source-item {
+	display: flex;
+	flex-direction: column;
+	gap: 0;
+	padding-left: 14px;
+	position: relative;
+}
+
+.ewo-sfd-source-item::before {
+	color: var(--ewo-gold);
+	content: "›";
+	font-size: 0.9rem;
+	font-weight: 900;
+	left: 0;
+	line-height: 1.5;
+	position: absolute;
+	top: 0;
+}
+
+.ewo-sfd-source-link,
+.ewo-sfd-source-link:link,
+.ewo-sfd-source-link:visited {
+	color: var(--ewo-silver);
+	font-size: 0.88rem;
+	line-height: 1.5;
+	text-decoration: none;
+	transition: color 140ms ease;
+}
+
+.ewo-sfd-source-link:hover,
+.ewo-sfd-source-link:focus {
+	color: var(--ewo-white);
+	text-decoration: none;
+}
+
+.ewo-sfd-source-meta {
+	color: rgba(174, 187, 204, 0.45);
+	display: block;
+	font-size: 0.72rem;
+	margin-top: 3px;
+}
+
+/* ================================================================
+   Generic empty states
+   ================================================================ */
+
+.ewo-sfd-empty {
+	color: rgba(174, 187, 204, 0.45);
+	font-size: 0.88rem;
+	font-style: italic;
+	margin: 0;
+}
+
+.ewo-sfd-empty--page {
+	font-size: 1rem;
+	padding: 48px 0;
+}

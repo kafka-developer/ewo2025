@@ -41,8 +41,9 @@ class EWO_RSS_Meta {
 	const EXT = '_ewo_rss_ext';
 
 	/* Importer types (item 7). */
-	const IMPORTER_NATIVE = 'ewo_native';
-	const IMPORTER_FEEDZY = 'feedzy';
+	const IMPORTER_NATIVE  = 'ewo_native';
+	const IMPORTER_FEEDZY  = 'feedzy';
+	const IMPORTER_KEYWORD = 'ewo_keyword';
 
 	/* Legacy keys migrated away from (item 1). */
 	const LEGACY_ARTICLE_URL_KEYS = array( '_ewo_rss_source_url', 'ewo_rss_source_url' );

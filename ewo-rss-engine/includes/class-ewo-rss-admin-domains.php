@@ -194,6 +194,9 @@ class EWO_RSS_Admin_Domains {
 					<div class="ewo-col-add-form" id="ewo-add-domain-form" style="display:none;" aria-hidden="true">
 						<input type="text" class="ewo-add-input" id="ewo-new-domain-name"
 							placeholder="<?php esc_attr_e( 'Domain name…', 'ewo-rss-engine' ); ?>" maxlength="191" />
+						<textarea class="ewo-add-textarea" id="ewo-new-domain-desc"
+							placeholder="<?php esc_attr_e( 'Description (optional)…', 'ewo-rss-engine' ); ?>"
+							rows="2" maxlength="500"></textarea>
 						<div class="ewo-add-form-actions">
 							<button type="button" class="button button-primary button-small" id="ewo-save-domain">
 								<?php esc_html_e( 'Save', 'ewo-rss-engine' ); ?>
@@ -217,6 +220,7 @@ class EWO_RSS_Admin_Domains {
 								<li class="ewo-col-row"
 									data-id="<?php echo esc_attr( (string) $d->id ); ?>"
 									data-name="<?php echo esc_attr( $d->name ); ?>"
+									data-description="<?php echo esc_attr( isset( $d->description ) ? (string) $d->description : '' ); ?>"
 									role="option" tabindex="0">
 									<div class="ewo-row-main">
 										<span class="ewo-row-name"><?php echo esc_html( $d->name ); ?></span>
@@ -361,6 +365,8 @@ class EWO_RSS_Admin_Domains {
 
 			</div><!-- .ewo-domains-columns -->
 
+			<div id="ewo-generate-results" class="ewo-generate-results" style="display:none;" aria-live="polite"></div>
+
 			<p class="ewo-domains-footer-note">
 				<span class="dashicons dashicons-info" aria-hidden="true"></span>
 				<?php esc_html_e( 'Feeds are generated from Keywords. Make sure keywords are relevant and active.', 'ewo-rss-engine' ); ?>
@@ -451,22 +457,24 @@ class EWO_RSS_Admin_Domains {
 	public function ajax_add_domain() {
 		$this->verify_nonce();
 		$name = isset( $_POST['name'] ) ? sanitize_text_field( wp_unslash( $_POST['name'] ) ) : '';
-		$id   = EWO_RSS_Taxonomy::add_domain( $name );
+		$desc = isset( $_POST['description'] ) ? sanitize_textarea_field( wp_unslash( $_POST['description'] ) ) : '';
+		$id   = EWO_RSS_Taxonomy::add_domain( $name, $desc );
 		if ( ! $id ) {
 			wp_send_json_error( array( 'message' => __( 'Could not add domain.', 'ewo-rss-engine' ) ) );
 		}
 		$domain = EWO_RSS_Taxonomy::get_domain( $id );
 		wp_send_json_success(
 			array(
-				'id'            => $id,
-				'name'          => $domain ? $domain->name : $name,
+				'id'              => $id,
+				'name'            => $domain ? $domain->name : $name,
+				'description'     => $domain && isset( $domain->description ) ? $domain->description : $desc,
 				'subdomain_count' => 0,
-				'total'         => count( EWO_RSS_Taxonomy::get_domains() ),
+				'total'           => count( EWO_RSS_Taxonomy::get_domains() ),
 			)
 		);
 	}
 
-	/** Update a domain name. */
+	/** Update a domain name and/or description. */
 	public function ajax_update_domain() {
 		$this->verify_nonce();
 		$id   = isset( $_POST['id'] ) ? absint( wp_unslash( $_POST['id'] ) ) : 0;
@@ -475,22 +483,36 @@ class EWO_RSS_Admin_Domains {
 			wp_send_json_error( array( 'message' => 'Invalid input.' ), 400 );
 		}
 
+		$data    = array(
+			'name'       => $name,
+			'updated_at' => current_time( 'mysql', true ),
+		);
+		$formats = array( '%s', '%s' );
+
+		if ( isset( $_POST['description'] ) ) {
+			$data['description'] = sanitize_textarea_field( wp_unslash( $_POST['description'] ) );
+			$formats[]           = '%s';
+		}
+
 		global $wpdb;
 		$result = $wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 			EWO_RSS_Taxonomy::domains_table(),
-			array(
-				'name'       => $name,
-				'updated_at' => current_time( 'mysql', true ),
-			),
+			$data,
 			array( 'id' => $id ),
-			array( '%s', '%s' ),
+			$formats,
 			array( '%d' )
 		);
 
 		if ( false === $result ) {
 			wp_send_json_error( array( 'message' => __( 'Could not update domain.', 'ewo-rss-engine' ) ) );
 		}
-		wp_send_json_success( array( 'id' => $id, 'name' => $name ) );
+		wp_send_json_success(
+			array(
+				'id'          => $id,
+				'name'        => $name,
+				'description' => isset( $data['description'] ) ? $data['description'] : '',
+			)
+		);
 	}
 
 	/** Delete a domain (cascades to subdomains + keywords). */
@@ -655,6 +677,9 @@ class EWO_RSS_Admin_Domains {
 
 	/**
 	 * Generate/fetch feeds for selected keyword IDs (or all in a subdomain).
+	 *
+	 * Returns per-keyword results for newly created feeds so the UI can display
+	 * only the net-new URLs (existing feeds are excluded from the results list).
 	 */
 	public function ajax_generate_feeds() {
 		$this->verify_nonce();
@@ -667,33 +692,52 @@ class EWO_RSS_Admin_Domains {
 		$kw_ids = array_values( array_filter( array_map( 'absint', (array) $ids_raw ) ) );
 
 		$subdomain_id = isset( $_POST['subdomain_id'] ) ? absint( wp_unslash( $_POST['subdomain_id'] ) ) : 0;
-		$totals       = array( 'found' => 0, 'created' => 0, 'skipped' => 0, 'errors' => 0 );
 
-		if ( ! empty( $kw_ids ) ) {
-			foreach ( $kw_ids as $kw_id ) {
-				EWO_RSS_Keyword_Feeds::sync_keyword( $kw_id );
-				$r = EWO_RSS_Keyword_Feeds::fetch_keyword( $kw_id );
-				foreach ( $totals as $k => $v ) {
-					$totals[ $k ] = $v + (int) ( isset( $r[ $k ] ) ? $r[ $k ] : 0 );
-				}
+		// If no explicit keyword IDs given, derive from subdomain.
+		if ( empty( $kw_ids ) && $subdomain_id > 0 ) {
+			foreach ( EWO_RSS_Taxonomy::get_keywords( $subdomain_id ) as $k ) {
+				$kw_ids[] = (int) $k->id;
 			}
-		} elseif ( $subdomain_id > 0 ) {
-			$totals = EWO_RSS_Keyword_Feeds::fetch_subdomain( $subdomain_id );
-		} else {
+		}
+
+		if ( empty( $kw_ids ) ) {
 			wp_send_json_error( array( 'message' => __( 'No keywords selected.', 'ewo-rss-engine' ) ) );
 		}
 
+		$new_feeds = array();
+
+		foreach ( $kw_ids as $kw_id ) {
+			$kw_before  = EWO_RSS_Taxonomy::get_keyword( $kw_id );
+			$had_feed   = $kw_before && (int) $kw_before->feed_id > 0;
+
+			EWO_RSS_Keyword_Feeds::sync_keyword( $kw_id );
+
+			if ( ! $had_feed ) {
+				$kw_after = EWO_RSS_Taxonomy::get_keyword( $kw_id );
+				$feed_id  = $kw_after ? (int) $kw_after->feed_id : 0;
+				if ( $feed_id > 0 ) {
+					$new_feeds[] = array(
+						'keyword'  => $kw_after ? $kw_after->keyword : '',
+						'feed_url' => EWO_RSS_Feed::url( $feed_id ),
+						'status'   => 'new',
+					);
+				}
+			}
+		}
+
+		$count   = count( $new_feeds );
+		$message = $count > 0
+			? sprintf(
+				/* translators: %d number of new feeds */
+				_n( '%d new feed URL generated.', '%d new feed URLs generated.', $count, 'ewo-rss-engine' ),
+				$count
+			)
+			: __( 'All feeds already existed. No new feed URLs were generated.', 'ewo-rss-engine' );
+
 		wp_send_json_success(
 			array(
-				'message' => sprintf(
-					/* translators: 1: found, 2: new, 3: skipped, 4: errors */
-					__( 'Done — %1$d found, %2$d new, %3$d skipped, %4$d errors.', 'ewo-rss-engine' ),
-					(int) $totals['found'],
-					(int) $totals['created'],
-					(int) $totals['skipped'],
-					(int) $totals['errors']
-				),
-				'totals'  => $totals,
+				'message'   => $message,
+				'new_feeds' => $new_feeds,
 			)
 		);
 	}

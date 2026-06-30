@@ -133,7 +133,7 @@
 	   ======================================================= */
 
 	function makeDomainRow( d ) {
-		return '<li class="ewo-col-row" data-id="' + attr( d.id ) + '" data-name="' + attr( d.name ) + '" role="option" tabindex="0">' +
+		return '<li class="ewo-col-row" data-id="' + attr( d.id ) + '" data-name="' + attr( d.name ) + '" data-description="' + attr( d.description || '' ) + '" role="option" tabindex="0">' +
 			'<div class="ewo-row-main">' +
 				'<span class="ewo-row-name">' + esc( d.name ) + '</span>' +
 				'<span class="ewo-row-meta">' + esc( d.subdomain_count || 0 ) + ' ' + esc( i18n.subdomains ) + '</span>' +
@@ -218,6 +218,7 @@
 		var btn    = el( 'ewo-btn-add-domain' );
 		var form   = el( 'ewo-add-domain-form' );
 		var inp    = el( 'ewo-new-domain-name' );
+		var descEl = el( 'ewo-new-domain-desc' );
 		var save   = el( 'ewo-save-domain' );
 		var cancel = el( 'ewo-cancel-domain' );
 
@@ -230,6 +231,7 @@
 		cancel.addEventListener( 'click', function () {
 			hide( form );
 			inp.value = '';
+			if ( descEl ) descEl.value = '';
 		} );
 
 		save.addEventListener( 'click', function () {
@@ -237,10 +239,14 @@
 			if ( ! name ) { inp.focus(); return; }
 			save.disabled = true;
 
-			post( 'add_domain', { name: name }, function ( data ) {
+			var payload = { name: name };
+			if ( descEl ) payload.description = descEl.value.trim();
+
+			post( 'add_domain', payload, function ( data ) {
 				save.disabled = false;
 				hide( form );
 				inp.value = '';
+				if ( descEl ) descEl.value = '';
 
 				var list = el( 'ewo-domains-list' );
 				var ph   = list.querySelector( '.ewo-col-empty' );
@@ -488,6 +494,40 @@
 		} );
 	}
 
+	function renderGenerateResults( newFeeds, message ) {
+		var container = el( 'ewo-generate-results' );
+		if ( ! container ) return;
+
+		if ( ! newFeeds || newFeeds.length === 0 ) {
+			container.innerHTML =
+				'<h3 class="ewo-generate-results-title">New Feed URLs Generated</h3>' +
+				'<p class="ewo-generate-results-empty">' + esc( message ) + '</p>';
+		} else {
+			var rows = '';
+			newFeeds.forEach( function ( r ) {
+				rows +=
+					'<tr>' +
+						'<td class="ewo-gr-col-kw">' + esc( r.keyword ) + '</td>' +
+						'<td class="ewo-gr-col-url"><a href="' + attr( r.feed_url ) + '" target="_blank" rel="noopener noreferrer">' + esc( r.feed_url ) + '</a></td>' +
+						'<td class="ewo-gr-col-status"><span class="ewo-kw-badge ewo-kw-badge--active">New</span></td>' +
+					'</tr>';
+			} );
+			container.innerHTML =
+				'<h3 class="ewo-generate-results-title">New Feed URLs Generated</h3>' +
+				'<table class="ewo-generate-results-table">' +
+					'<thead><tr>' +
+						'<th>Keyword</th>' +
+						'<th>Generated Feed URL</th>' +
+						'<th>Status</th>' +
+					'</tr></thead>' +
+					'<tbody>' + rows + '</tbody>' +
+				'</table>';
+		}
+
+		container.style.display = '';
+		container.scrollIntoView( { behavior: 'smooth', block: 'nearest' } );
+	}
+
 	function initGenerateFeeds() {
 		var btn = el( 'ewo-btn-generate' );
 		if ( ! btn ) return;
@@ -499,15 +539,18 @@
 			btn.disabled    = true;
 			btn.textContent = i18n.generating;
 
+			var container = el( 'ewo-generate-results' );
+			if ( container ) { container.style.display = 'none'; }
+
 			var payload = { subdomain_id: state.subdomainId };
 			if ( checked.length > 0 ) {
 				payload.keyword_ids = checked;
 			}
 
 			post( 'generate_feeds', payload, function ( data ) {
-				btn.disabled    = false;
-				btn.innerHTML   = '⚡ Generate Feeds';
-				flash( data.message || i18n.saved );
+				btn.disabled  = false;
+				btn.innerHTML = '⚡ Generate Feeds';
+				renderGenerateResults( data.new_feeds || [], data.message );
 			}, function () {
 				btn.disabled  = false;
 				btn.innerHTML = '⚡ Generate Feeds';
@@ -538,16 +581,24 @@
 		if ( row.classList.contains( 'ewo-row--editing' ) ) return;
 		row.classList.add( 'ewo-row--editing' );
 
-		var id      = row.getAttribute( 'data-id' );
-		var current = row.getAttribute( 'data-name' ) || '';
-		var main    = row.querySelector( '.ewo-row-main' );
-		var menu    = row.querySelector( '.ewo-row-menu-wrap' );
+		var id          = row.getAttribute( 'data-id' );
+		var current     = row.getAttribute( 'data-name' ) || '';
+		var currentDesc = row.getAttribute( 'data-description' ) || '';
+		var main        = row.querySelector( '.ewo-row-main' );
+		var menu        = row.querySelector( '.ewo-row-menu-wrap' );
 
 		// Stash original HTML so we can restore on cancel.
 		row._origMain = main ? main.outerHTML : '';
 
+		var descField = '';
+		if ( type === 'domain' ) {
+			descField = '<textarea class="ewo-row-edit-desc" maxlength="500" placeholder="Description (optional)…">' +
+				esc( currentDesc ) + '</textarea>';
+		}
+
 		var editHtml = '<div class="ewo-row-edit-wrap">' +
 			'<input type="text" class="ewo-row-edit-input" value="' + attr( current ) + '" maxlength="191" />' +
+			descField +
 			'<button type="button" class="button button-primary button-small ewo-edit-save" data-id="' + attr( id ) + '" data-type="' + attr( type ) + '">' + esc( i18n.save ) + '</button>' +
 			'<button type="button" class="button button-small ewo-edit-cancel">' + esc( i18n.cancel ) + '</button>' +
 		'</div>';
@@ -597,11 +648,18 @@
 			payload.keyword = name;
 		} else {
 			payload.name = name;
+			if ( type === 'domain' ) {
+				var descEl = row.querySelector( '.ewo-row-edit-desc' );
+				if ( descEl ) payload.description = descEl.value;
+			}
 		}
 
 		post( action, payload, function ( data ) {
 			row.classList.remove( 'ewo-row--editing' );
 			row.setAttribute( 'data-name', data.name || data.keyword || name );
+			if ( type === 'domain' && typeof data.description !== 'undefined' ) {
+				row.setAttribute( 'data-description', data.description );
+			}
 
 			var wrap = row.querySelector( '.ewo-row-edit-wrap' );
 			var menu = row.querySelector( '.ewo-row-menu-wrap' );

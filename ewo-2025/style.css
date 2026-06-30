@@ -99,6 +99,7 @@ textarea {
 
 .site-header__inner,
 .site-footer__inner,
+.site-footer__container,
 .site-main {
 	margin: 0 auto;
 	max-width: var(--ewo-max-width);
@@ -242,9 +243,6 @@ input[type="submit"]:focus {
 	color: var(--ewo-muted);
 }
 
-.site-footer__inner {
-	padding: 28px 0;
-}
 
 @media (max-width: 720px) {
 	.site-header__inner {
@@ -359,20 +357,6 @@ input[type="submit"]:focus {
 	margin-top: 20px;
 }
 
-.site-footer__inner {
-	align-items: center;
-	display: flex;
-	gap: 22px;
-	justify-content: space-between;
-}
-
-.ewo-platform-links--footer {
-	justify-content: flex-end;
-}
-
-.ewo-platform-links--footer a {
-	background: rgba(16, 35, 61, 0.52);
-}
 
 
 
@@ -437,16 +421,6 @@ input[type="submit"]:focus {
 	}
 }
 
-@media (max-width: 720px) {
-	.site-footer__inner {
-		align-items: flex-start;
-		flex-direction: column;
-	}
-
-	.ewo-platform-links--footer {
-		justify-content: flex-start;
-	}
-}
 
 /* Header navigation. */
 .main-navigation {
@@ -1078,22 +1052,6 @@ body.home {
 	max-width: 700px;
 }
 
-.ewo-newsletter__form {
-	display: flex;
-	gap: 10px;
-	width: min(100%, 470px);
-}
-
-.ewo-newsletter__form input {
-	background: rgba(5, 14, 27, 0.82);
-	border: 1px solid rgba(216, 224, 234, 0.26);
-	border-radius: 4px;
-	color: var(--ewo-white);
-	min-height: 48px;
-	min-width: 0;
-	padding: 0.75rem 0.9rem;
-	width: 100%;
-}
 
 
 
@@ -1702,7 +1660,6 @@ body.home {
 		font-size: clamp(2.7rem, 14vw, 4.4rem);
 	}
 
-	.ewo-newsletter__form,
 	.ewo-hero__actions {
 		align-items: stretch;
 		flex-direction: column;
@@ -1958,280 +1915,18 @@ a.ewo-article-card__more.ewo-substack-button:focus {
 	color: var(--ewo-gold, #d7a84b);
 }
 
-/* Footer platform icon cards. */
-.site-footer__inner--platforms {
-	align-items: stretch;
-	display: grid;
-	gap: clamp(22px, 3.5vw, 44px);
-	grid-template-columns: minmax(230px, 0.82fr) 1px minmax(0, 1.3fr);
-	padding: clamp(30px, 5vw, 54px) 0;
-}
-
-.site-footer__brand {
-	align-items: flex-start;
-	display: flex;
-	flex-direction: column;
-	gap: 14px;
-}
-
-.site-footer__brand .site-footer__name,
-.site-footer__brand .site-footer__tagline {
-	margin: 0;
-}
-
-/* Vertical divider between the brand block and the platform block. */
-.site-footer__divider {
-	background: linear-gradient(180deg, transparent, var(--ewo-border) 12%, var(--ewo-border) 88%, transparent);
-	width: 1px;
-}
-
-.site-footer__logo {
-	flex: 0 0 auto;
-}
-
-.site-footer__logo img {
-	display: block;
-	height: 54px;
-	width: auto;
-}
-
-.site-footer__name {
-	color: var(--ewo-white);
-	font-size: 1rem;
-	font-weight: 800;
-	letter-spacing: 0.04em;
-	margin: 0 0 6px;
-	text-transform: uppercase;
-}
-
-.site-footer__tagline {
-	color: var(--ewo-muted);
-	font-size: 0.92rem;
-	line-height: 1.5;
-	margin: 0 0 16px;
-	max-width: 360px;
-}
-
-.site-footer__copyright {
-	color: rgba(174, 187, 204, 0.8);
-	font-size: 0.82rem;
-	margin: 0;
-}
-
-.site-footer__platforms {
-	background: rgba(16, 35, 61, 0.46);
-	border: 1px solid rgba(216, 224, 234, 0.14);
-	border-radius: 8px;
-	padding: 18px;
-}
-
-.site-footer__platforms-kicker {
-	color: var(--ewo-gold);
-	font-size: 0.76rem;
-	font-weight: 900;
-	letter-spacing: 0.12em;
-	margin: 0 0 14px;
-	text-transform: uppercase;
-}
-
-.site-footer__platforms-subtitle {
-	color: var(--ewo-muted);
-	font-size: 0.9rem;
-	line-height: 1.5;
-	margin: 0 0 16px;
-	max-width: 460px;
-}
-
-.site-footer__platform-grid {
-	display: grid;
-	gap: 12px;
-	grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-}
-
-.ewo-footer-platform {
-	align-items: center;
-	background: linear-gradient(180deg, rgba(7, 20, 38, 0.78), rgba(5, 14, 27, 0.92));
-	border: 1px solid rgba(216, 224, 234, 0.14);
-	border-radius: 8px;
-	color: var(--ewo-white);
-	display: flex;
-	gap: 12px;
-	min-height: 78px;
-	padding: 13px;
-	text-decoration: none;
-	transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
-}
-
-a.ewo-footer-platform:hover,
-a.ewo-footer-platform:focus-visible {
-	border-color: rgba(215, 168, 75, 0.5);
-	box-shadow: 0 12px 34px rgba(0, 0, 0, 0.22);
-	transform: translateY(-1px);
-}
-
-.ewo-footer-platform--disabled {
-	cursor: default;
-	opacity: 0.72;
-}
-
-.ewo-footer-platform__icon {
-	align-items: center;
-	border-radius: 8px;
-	display: inline-flex;
-	flex: 0 0 auto;
-	height: 42px;
-	justify-content: center;
-	width: 42px;
-}
-
-.ewo-footer-platform__icon svg {
-	display: block;
-	fill: currentColor;
-	height: 26px;
-	width: 26px;
-}
-
-.ewo-footer-platform__play {
-	fill: #ffffff;
-}
-
-.ewo-footer-platform__text {
-	display: flex;
-	flex-direction: column;
-	gap: 3px;
-	min-width: 0;
-}
-
-.ewo-footer-platform__name {
-	color: var(--ewo-white);
-	font-size: 0.92rem;
-	font-weight: 900;
-	line-height: 1.15;
-}
-
-.ewo-footer-platform__label {
-	color: var(--ewo-muted);
-	font-size: 0.76rem;
-	font-weight: 700;
-	line-height: 1.2;
-}
-
-.ewo-footer-platform--youtube .ewo-footer-platform__icon {
-	background: rgba(255, 0, 0, 0.13);
-	color: #ff1f1f;
-}
-
-.ewo-footer-platform--substack .ewo-footer-platform__icon {
-	background: rgba(255, 103, 26, 0.13);
-	color: #ff671a;
-}
-
-.ewo-footer-platform--spotify .ewo-footer-platform__icon {
-	background: rgba(30, 215, 96, 0.13);
-	color: #1ed760;
-}
-
-.ewo-footer-platform--tiktok .ewo-footer-platform__icon {
-	background: linear-gradient(135deg, rgba(37, 244, 238, 0.14), rgba(254, 44, 85, 0.14));
-	color: #25f4ee;
-}
-
-.ewo-footer-platform--x .ewo-footer-platform__icon {
-	background: rgba(255, 255, 255, 0.1);
-	color: #ffffff;
-}
-
-.ewo-footer-platform--rumble .ewo-footer-platform__icon {
-	background: rgba(133, 214, 73, 0.14);
-	color: #85d649;
-}
-
-.ewo-footer-platform--amazon .ewo-footer-platform__icon {
-	background: rgba(255, 153, 0, 0.14);
-	color: #ff9900;
-}
-
-/* Small square icon-only social buttons (display_location = footer_icon). */
-.site-footer__social-row {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 10px;
-	margin-top: 2px;
-}
-
-.ewo-footer-icon {
-	align-items: center;
-	background: rgba(16, 35, 61, 0.6);
-	border: 1px solid rgba(216, 224, 234, 0.16);
-	border-radius: 10px;
-	color: var(--ewo-silver);
-	display: inline-flex;
-	height: 40px;
-	justify-content: center;
-	transition: border-color 160ms ease, box-shadow 160ms ease, color 160ms ease, transform 160ms ease;
-	width: 40px;
-}
-
-.ewo-footer-icon__glyph {
-	display: inline-flex;
-}
-
-.ewo-footer-icon__glyph svg {
-	display: block;
-	fill: currentColor;
-	height: 18px;
-	width: 18px;
-}
-
-.ewo-footer-icon:hover,
-.ewo-footer-icon:focus-visible {
-	border-color: rgba(0, 163, 255, 0.5);
-	box-shadow: 0 0 20px rgba(0, 163, 255, 0.2);
-	color: var(--ewo-white);
-	transform: translateY(-2px);
-}
-
-.ewo-footer-icon--youtube:hover,
-.ewo-footer-icon--youtube:focus-visible {
-	border-color: rgba(255, 31, 31, 0.55);
-	box-shadow: 0 0 20px rgba(255, 31, 31, 0.22);
-	color: #ff4d4d;
-}
-
-.ewo-footer-icon--telegram:hover,
-.ewo-footer-icon--telegram:focus-visible {
-	border-color: rgba(42, 171, 238, 0.55);
-	box-shadow: 0 0 20px rgba(42, 171, 238, 0.22);
-	color: #2aabee;
-}
-
-.ewo-footer-icon--linkedin:hover,
-.ewo-footer-icon--linkedin:focus-visible {
-	border-color: rgba(56, 132, 214, 0.6);
-	box-shadow: 0 0 20px rgba(56, 132, 214, 0.28);
-	color: #3884d6;
-}
-
-.ewo-footer-icon--email:hover,
-.ewo-footer-icon--email:focus-visible {
-	border-color: rgba(215, 168, 75, 0.55);
-	box-shadow: 0 0 20px rgba(215, 168, 75, 0.2);
-	color: var(--ewo-gold);
-}
 
 /* Bottom legal links row. */
 .site-footer__legal {
 	align-items: center;
-	border-top: 1px solid var(--ewo-border);
 	display: flex;
-	flex-wrap: wrap;
-	gap: 12px 22px;
-	justify-content: space-between;
+	gap: 12px 24px;
 	padding: 18px 0;
 }
 
 .site-footer__legal .site-footer__copyright {
 	color: rgba(174, 187, 204, 0.8);
+	flex: 1;
 	font-size: 0.82rem;
 	margin: 0;
 }
@@ -2254,25 +1949,72 @@ a.ewo-footer-platform:focus-visible {
 	color: var(--ewo-gold);
 }
 
-@media (max-width: 980px) {
-	.site-footer__inner--platforms {
-		grid-template-columns: 1fr;
-	}
-
-	.site-footer__divider {
-		display: none;
-	}
-}
-
 @media (max-width: 680px) {
-	.site-footer__platform-grid {
-		grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-	}
-
 	.site-footer__legal {
-		justify-content: flex-start;
+		flex-direction: column;
+		align-items: center;
+		gap: 12px;
+		text-align: center;
+	}
+	.site-footer__legal .site-footer__copyright,
+	.site-footer__legal-icons {
+		flex: 0 0 auto;
+	}
+	.site-footer__legal-icons {
+		justify-content: center;
 	}
 }
+
+/* Footer legal bar — social icon buttons (right zone). */
+.site-footer__legal-icons {
+	display: flex;
+	flex: 1;
+	gap: 10px;
+	justify-content: flex-end;
+}
+
+.ewo-footer-icon {
+	align-items: center;
+	background: rgba(16, 35, 61, 0.6);
+	border: 1px solid rgba(216, 224, 234, 0.16);
+	border-radius: 10px;
+	color: var(--ewo-silver);
+	display: inline-flex;
+	height: 36px;
+	justify-content: center;
+	transition: border-color 160ms ease, color 160ms ease;
+	width: 36px;
+}
+
+.ewo-footer-icon__glyph {
+	display: inline-flex;
+}
+
+.ewo-footer-icon__glyph svg {
+	display: block;
+	fill: currentColor;
+	height: 16px;
+	width: 16px;
+}
+
+.ewo-footer-icon:hover,
+.ewo-footer-icon:focus-visible {
+	border-color: rgba(215, 168, 75, 0.5);
+	color: var(--ewo-white);
+}
+
+/* Platform brand colors — icons are recognisable at a glance. */
+.ewo-footer-icon--youtube  { color: #ff0000; }
+.ewo-footer-icon--substack { color: #ff6719; }
+.ewo-footer-icon--spotify  { color: #1ed760; }
+.ewo-footer-icon--tiktok   { color: #ee1d52; }
+.ewo-footer-icon--x        { color: #e7e7e7; }
+.ewo-footer-icon--amazon   { color: #ff9900; }
+.ewo-footer-icon--rumble   { color: #85c742; }
+.ewo-footer-icon--telegram { color: #229ed9; }
+.ewo-footer-icon--linkedin { color: #0a66c2; }
+.ewo-footer-icon--email    { color: var(--ewo-gold); }
+
 /* Videos page hard-coded Media Hub template. */
 .ewo-media-hub {
 	color: var(--ewo-text);
@@ -2470,4 +2212,71 @@ a.ewo-footer-platform:focus-visible {
 }
 .site-footer__platforms:not(:has(.ewo-footer-platform)) {
 	display: none;
+}
+
+/* -----------------------------------------------------------------------
+   Homepage domain card — live data additions (build 20260624-03)
+   ----------------------------------------------------------------------- */
+
+.ewo-domain-card {
+	position: relative;
+}
+
+.ewo-domain-card__full-link {
+	bottom: 0;
+	left: 0;
+	position: absolute;
+	right: 0;
+	top: 0;
+	z-index: 0;
+}
+
+.ewo-domain-card h3 a,
+.ewo-domain-card h3 a:link,
+.ewo-domain-card h3 a:visited {
+	color: #ffffff;
+	position: relative;
+	text-decoration: none;
+	transition: color 160ms ease;
+	z-index: 1;
+}
+
+.ewo-domain-card h3 a:hover,
+.ewo-domain-card h3 a:focus {
+	color: #d7a84b;
+	text-decoration: none;
+}
+
+.ewo-domain-feed__item {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+
+.ewo-domain-feed__meta {
+	color: rgba(174, 187, 204, 0.55);
+	font-size: 0.74rem;
+	letter-spacing: 0.01em;
+}
+
+.ewo-domain-card__footer {
+	border-top: 1px solid rgba(216, 224, 234, 0.12);
+	display: flex;
+	gap: 14px;
+	margin-top: auto;
+	padding-top: 12px;
+	position: relative;
+	z-index: 1;
+}
+
+.ewo-domain-card__stat {
+	color: rgba(174, 187, 204, 0.7);
+	font-size: 0.75rem;
+}
+
+.ewo-domain-card__stat strong {
+	color: var(--ewo-gold);
+	font-variant-numeric: tabular-nums;
+	font-weight: 800;
+	margin-right: 3px;
 }

@@ -4,18 +4,16 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
 const EWO_2025_SOCIAL_LINKS_OPTION = 'ewo_2025_social_links';
 
 /**
- * Platform registry — the single source of truth for platform metadata.
+ * Platform registry — single source of truth for SVG icons and metadata.
  *
- * Admin controls each link's `url` plus three per-link toggles stored in the
- * EWO_2025_SOCIAL_LINKS_OPTION option: `enabled` (master on/off), `footer`
- * (show in the footer) and `sidecard` (show in the sidebar Follow card). The
- * Footer and Side Card share the same URL — placement is per link.
+ * Admin controls: url, enabled, header, footer, sidecard, sort_order
+ * (all stored in EWO_2025_SOCIAL_LINKS_OPTION).
  *
- * Everything else here is seed / fallback data:
- *  - seed_url        : used when the admin URL is blank, so the UI still renders.
- *  - card / icon_row : where the platform appears *within* the footer (a large
- *                      card, a small icon button, or both). Design property.
- *  - default_*       : default toggle values used until an admin saves.
+ * Everything here is seed / fallback data used when admin has not yet saved:
+ *   seed_url       — fallback URL when admin URL is blank.
+ *   default_*      — default toggle values until admin saves.
+ *   sort_order     — default display order; overrideable in admin.
+ *   card / icon_row — footer placement capability (design property, not admin-editable).
  */
 function ewo_2025_get_social_platforms() {
 	$icons = array(
@@ -31,16 +29,16 @@ function ewo_2025_get_social_platforms() {
 		'email'    => '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Zm1.4 2 7.6 5.3L19.6 7H4.4ZM20 8.5l-8 5.6L4 8.5V17h16V8.5Z"/></svg>',
 	);
 	return array(
-		'youtube'     => array( 'label' => __( 'YouTube', 'ewo-2025' ),     'short' => 'YT', 'detail' => __( 'Watch & Subscribe', 'ewo-2025' ),  'class' => 'youtube',  'icon_key' => 'youtube',  'icon' => $icons['youtube'],  'opens_in_new_tab' => true,  'seed_url' => 'https://www.youtube.com/@emergingworldorder2025', 'sort_order' => 1,  'card' => true,  'icon_row' => true,  'default_enabled' => true, 'default_footer' => true, 'default_sidecard' => true ),
-		'substack'    => array( 'label' => __( 'Substack', 'ewo-2025' ),    'short' => 'SS', 'detail' => __( 'Read Analysis', 'ewo-2025' ),      'class' => 'substack', 'icon_key' => 'substack', 'icon' => $icons['substack'], 'opens_in_new_tab' => true,  'seed_url' => 'https://emergingworldorder.substack.com',        'sort_order' => 2,  'card' => true,  'icon_row' => false, 'default_enabled' => true, 'default_footer' => true, 'default_sidecard' => true ),
-		'spotify'     => array( 'label' => __( 'Spotify', 'ewo-2025' ),     'short' => 'SP', 'detail' => __( 'Listen to Podcasts', 'ewo-2025' ), 'class' => 'spotify',  'icon_key' => 'spotify',  'icon' => $icons['spotify'],  'opens_in_new_tab' => true,  'seed_url' => 'https://open.spotify.com/show/EmergingWorldOrder',  'sort_order' => 3,  'card' => true,  'icon_row' => false, 'default_enabled' => true, 'default_footer' => true, 'default_sidecard' => true ),
-		'tiktok'      => array( 'label' => __( 'TikTok', 'ewo-2025' ),      'short' => 'TT', 'detail' => __( 'Watch Clips', 'ewo-2025' ),        'class' => 'tiktok',   'icon_key' => 'tiktok',   'icon' => $icons['tiktok'],   'opens_in_new_tab' => true,  'seed_url' => 'https://www.tiktok.com/@emergingworldorder',       'sort_order' => 4,  'card' => true,  'icon_row' => false, 'default_enabled' => true, 'default_footer' => true, 'default_sidecard' => false ),
-		'x'           => array( 'label' => __( 'X (Twitter)', 'ewo-2025' ), 'short' => 'X',  'detail' => __( 'Latest Updates', 'ewo-2025' ),     'class' => 'x',        'icon_key' => 'x',        'icon' => $icons['x'],        'opens_in_new_tab' => true,  'seed_url' => 'https://x.com/EmergingWorldOrder',                 'sort_order' => 5,  'card' => true,  'icon_row' => true,  'default_enabled' => true, 'default_footer' => true, 'default_sidecard' => true ),
-		'amazon_book' => array( 'label' => __( 'Amazon', 'ewo-2025' ),      'short' => 'BK', 'detail' => __( 'Our Book', 'ewo-2025' ),           'class' => 'amazon',   'icon_key' => 'amazon',   'icon' => $icons['amazon'],   'opens_in_new_tab' => true,  'seed_url' => 'https://www.amazon.com',                           'sort_order' => 6,  'card' => true,  'icon_row' => false, 'default_enabled' => true, 'default_footer' => true, 'default_sidecard' => true ),
-		'telegram'    => array( 'label' => __( 'Telegram', 'ewo-2025' ),    'short' => 'TG', 'detail' => __( 'Join the Channel', 'ewo-2025' ),    'class' => 'telegram', 'icon_key' => 'telegram', 'icon' => $icons['telegram'], 'opens_in_new_tab' => true,  'seed_url' => 'https://t.me/EmergingWorldOrder',                  'sort_order' => 7,  'card' => false, 'icon_row' => true,  'default_enabled' => true, 'default_footer' => true, 'default_sidecard' => false ),
-		'linkedin'    => array( 'label' => __( 'LinkedIn', 'ewo-2025' ),    'short' => 'IN', 'detail' => __( 'Connect', 'ewo-2025' ),            'class' => 'linkedin', 'icon_key' => 'linkedin', 'icon' => $icons['linkedin'], 'opens_in_new_tab' => true,  'seed_url' => 'https://www.linkedin.com/company/emerging-world-order', 'sort_order' => 8, 'card' => false, 'icon_row' => true,  'default_enabled' => true, 'default_footer' => true, 'default_sidecard' => false ),
-		'email'       => array( 'label' => __( 'Email', 'ewo-2025' ),       'short' => '@',  'detail' => __( 'Get in Touch', 'ewo-2025' ),       'class' => 'email',    'icon_key' => 'email',    'icon' => $icons['email'],    'opens_in_new_tab' => false, 'seed_url' => 'hello@emergingworldorder.com',                     'sort_order' => 9,  'card' => false, 'icon_row' => true,  'default_enabled' => true, 'default_footer' => true, 'default_sidecard' => false ),
-		'rumble'      => array( 'label' => __( 'Rumble', 'ewo-2025' ),      'short' => 'RB', 'detail' => __( 'Watch on Rumble', 'ewo-2025' ),     'class' => 'rumble',   'icon_key' => 'rumble',   'icon' => $icons['rumble'],   'opens_in_new_tab' => true,  'seed_url' => '',                                                 'sort_order' => 10, 'card' => true,  'icon_row' => false, 'default_enabled' => true, 'default_footer' => false, 'default_sidecard' => true ),
+		'youtube'     => array( 'label' => __( 'YouTube', 'ewo-2025' ),     'short' => 'YT', 'detail' => __( 'Watch & Subscribe', 'ewo-2025' ),  'class' => 'youtube',  'icon_key' => 'youtube',  'icon' => $icons['youtube'],  'opens_in_new_tab' => true,  'seed_url' => 'https://www.youtube.com/@emergingworldorder2025', 'sort_order' => 1,  'card' => true,  'icon_row' => true,  'default_enabled' => true, 'default_header' => true,  'default_footer' => true, 'default_sidecard' => true ),
+		'substack'    => array( 'label' => __( 'Substack', 'ewo-2025' ),    'short' => 'SS', 'detail' => __( 'Read Analysis', 'ewo-2025' ),      'class' => 'substack', 'icon_key' => 'substack', 'icon' => $icons['substack'], 'opens_in_new_tab' => true,  'seed_url' => 'https://emergingworldorder.substack.com',        'sort_order' => 2,  'card' => true,  'icon_row' => false, 'default_enabled' => true, 'default_header' => true,  'default_footer' => true, 'default_sidecard' => true ),
+		'spotify'     => array( 'label' => __( 'Spotify', 'ewo-2025' ),     'short' => 'SP', 'detail' => __( 'Listen to Podcasts', 'ewo-2025' ), 'class' => 'spotify',  'icon_key' => 'spotify',  'icon' => $icons['spotify'],  'opens_in_new_tab' => true,  'seed_url' => 'https://open.spotify.com/show/EmergingWorldOrder',  'sort_order' => 3,  'card' => true,  'icon_row' => false, 'default_enabled' => true, 'default_header' => true,  'default_footer' => true, 'default_sidecard' => true ),
+		'tiktok'      => array( 'label' => __( 'TikTok', 'ewo-2025' ),      'short' => 'TT', 'detail' => __( 'Watch Clips', 'ewo-2025' ),        'class' => 'tiktok',   'icon_key' => 'tiktok',   'icon' => $icons['tiktok'],   'opens_in_new_tab' => true,  'seed_url' => 'https://www.tiktok.com/@emergingworldorder',       'sort_order' => 4,  'card' => true,  'icon_row' => false, 'default_enabled' => true, 'default_header' => true,  'default_footer' => true, 'default_sidecard' => false ),
+		'x'           => array( 'label' => __( 'X (Twitter)', 'ewo-2025' ), 'short' => 'X',  'detail' => __( 'Latest Updates', 'ewo-2025' ),     'class' => 'x',        'icon_key' => 'x',        'icon' => $icons['x'],        'opens_in_new_tab' => true,  'seed_url' => 'https://x.com/EmergingWorldOrder',                 'sort_order' => 5,  'card' => true,  'icon_row' => true,  'default_enabled' => true, 'default_header' => true,  'default_footer' => true, 'default_sidecard' => true ),
+		'amazon_book' => array( 'label' => __( 'Amazon', 'ewo-2025' ),      'short' => 'BK', 'detail' => __( 'Our Book', 'ewo-2025' ),           'class' => 'amazon',   'icon_key' => 'amazon',   'icon' => $icons['amazon'],   'opens_in_new_tab' => true,  'seed_url' => 'https://www.amazon.com',                           'sort_order' => 6,  'card' => true,  'icon_row' => false, 'default_enabled' => true, 'default_header' => true,  'default_footer' => true, 'default_sidecard' => true ),
+		'rumble'      => array( 'label' => __( 'Rumble', 'ewo-2025' ),      'short' => 'RB', 'detail' => __( 'Watch on Rumble', 'ewo-2025' ),     'class' => 'rumble',   'icon_key' => 'rumble',   'icon' => $icons['rumble'],   'opens_in_new_tab' => true,  'seed_url' => '',                                                 'sort_order' => 7,  'card' => true,  'icon_row' => false, 'default_enabled' => true, 'default_header' => true,  'default_footer' => false, 'default_sidecard' => true ),
+		'telegram'    => array( 'label' => __( 'Telegram', 'ewo-2025' ),    'short' => 'TG', 'detail' => __( 'Join the Channel', 'ewo-2025' ),    'class' => 'telegram', 'icon_key' => 'telegram', 'icon' => $icons['telegram'], 'opens_in_new_tab' => true,  'seed_url' => 'https://t.me/EmergingWorldOrder',                  'sort_order' => 8,  'card' => false, 'icon_row' => true,  'default_enabled' => true, 'default_header' => false, 'default_footer' => true, 'default_sidecard' => false ),
+		'linkedin'    => array( 'label' => __( 'LinkedIn', 'ewo-2025' ),    'short' => 'IN', 'detail' => __( 'Connect', 'ewo-2025' ),            'class' => 'linkedin', 'icon_key' => 'linkedin', 'icon' => $icons['linkedin'], 'opens_in_new_tab' => true,  'seed_url' => 'https://www.linkedin.com/company/emerging-world-order', 'sort_order' => 9, 'card' => false, 'icon_row' => true,  'default_enabled' => true, 'default_header' => false, 'default_footer' => true, 'default_sidecard' => false ),
+		'email'       => array( 'label' => __( 'Email', 'ewo-2025' ),       'short' => '@',  'detail' => __( 'Get in Touch', 'ewo-2025' ),       'class' => 'email',    'icon_key' => 'email',    'icon' => $icons['email'],    'opens_in_new_tab' => false, 'seed_url' => 'hello@emergingworldorder.com',                     'sort_order' => 10, 'card' => false, 'icon_row' => true,  'default_enabled' => true, 'default_header' => false, 'default_footer' => true, 'default_sidecard' => false ),
 	);
 }
 
@@ -58,18 +56,15 @@ function ewo_2025_link_target_attr( $opens_in_new_tab ) {
 }
 
 /**
- * Resolved settings for one platform: url (with seed fallback + mailto), and
- * the enabled / footer / sidecard toggles. Toggle values come from a saved
- * record when present, otherwise from the registry defaults.
+ * Resolved settings for one registry platform: url, enabled, header, footer,
+ * sidecard, sort_order. Stored values override registry defaults.
  */
 function ewo_2025_get_platform_settings( $key ) {
 	$platforms = ewo_2025_get_social_platforms();
 	if ( empty( $platforms[ $key ] ) ) { return null; }
-	$p     = $platforms[ $key ];
+	$p         = $platforms[ $key ];
 	$saved     = get_option( EWO_2025_SOCIAL_LINKS_OPTION, array() );
 	$saved_val = ( is_array( $saved ) && isset( $saved[ $key ] ) ) ? $saved[ $key ] : null;
-	// Only the new nested format carries explicit toggle values; a legacy flat
-	// url string (or no record) means the toggles fall back to defaults.
 	$has_record = is_array( $saved_val );
 	$raw        = $has_record ? $saved_val : array();
 	if ( is_string( $saved_val ) && '' !== $saved_val ) { $raw['url'] = $saved_val; }
@@ -81,46 +76,84 @@ function ewo_2025_get_platform_settings( $key ) {
 	}
 
 	return array(
-		'url'      => $url,
-		'raw_url'  => $raw_url,
-		'enabled'  => $has_record ? ! empty( $raw['enabled'] )  : ! empty( $p['default_enabled'] ),
-		'footer'   => $has_record ? ! empty( $raw['footer'] )   : ! empty( $p['default_footer'] ),
-		'sidecard' => $has_record ? ! empty( $raw['sidecard'] ) : ! empty( $p['default_sidecard'] ),
+		'url'        => $url,
+		'raw_url'    => $raw_url,
+		'enabled'    => $has_record ? ! empty( $raw['enabled'] )    : ! empty( $p['default_enabled'] ),
+		'header'     => $has_record && array_key_exists( 'header', $raw ) ? ! empty( $raw['header'] ) : ! empty( $p['default_header'] ),
+		'footer'     => $has_record ? ! empty( $raw['footer'] )     : ! empty( $p['default_footer'] ),
+		'sidecard'   => $has_record ? ! empty( $raw['sidecard'] )   : ! empty( $p['default_sidecard'] ),
+		'sort_order' => ( $has_record && isset( $raw['sort_order'] ) ) ? (int) $raw['sort_order'] : (int) $p['sort_order'],
 	);
+}
+
+/** Returns the _custom array from the stored option (user-added platforms). */
+function ewo_2025_get_custom_platforms() {
+	$saved  = get_option( EWO_2025_SOCIAL_LINKS_OPTION, array() );
+	$custom = ( is_array( $saved ) && isset( $saved['_custom'] ) ) ? $saved['_custom'] : array();
+	return is_array( $custom ) ? $custom : array();
 }
 
 /**
  * Resolved, active, sorted link records for a display surface:
- *   footer_card | footer_icon | sidecard
- * Disabled links, links with no URL, and links not placed on the surface are
- * dropped, so nothing broken or unwanted is rendered.
+ *   header | footer_card | footer_icon | sidecard
+ *
+ * Registry platforms are filtered by their surface flag; custom platforms
+ * (user-added) only appear on the 'header' surface (they carry no SVG icon).
+ * Disabled links and links with no URL are always dropped.
  */
 function ewo_2025_get_platform_surface_links( $surface ) {
 	$rows = array();
+
 	foreach ( ewo_2025_get_social_platforms() as $key => $p ) {
 		$s = ewo_2025_get_platform_settings( $key );
 		if ( ! $s['enabled'] || '' === $s['url'] ) { continue; }
+
 		if ( 'footer_card' === $surface ) {
 			$ok = $s['footer'] && ! empty( $p['card'] );
 		} elseif ( 'footer_icon' === $surface ) {
 			$ok = $s['footer'] && ! empty( $p['icon_row'] );
+		} elseif ( 'footer' === $surface ) {
+			$ok = $s['footer'];
 		} elseif ( 'sidecard' === $surface ) {
 			$ok = $s['sidecard'];
+		} elseif ( 'header' === $surface ) {
+			$ok = $s['header'];
 		} else {
 			$ok = false;
 		}
 		if ( ! $ok ) { continue; }
+
 		$rows[] = array(
 			'key'              => $key,
 			'url'              => $s['url'],
 			'platform_name'    => $p['label'],
 			'label'            => $p['detail'],
+			'short'            => $p['short'],
 			'class'            => $p['class'],
 			'icon'             => $p['icon'],
 			'opens_in_new_tab' => ! empty( $p['opens_in_new_tab'] ),
-			'sort_order'       => (int) $p['sort_order'],
+			'sort_order'       => $s['sort_order'],
 		);
 	}
+
+	// Custom platforms only appear in the header chip row.
+	if ( 'header' === $surface ) {
+		foreach ( ewo_2025_get_custom_platforms() as $cp ) {
+			if ( empty( $cp['enabled'] ) || empty( $cp['url'] ) || empty( $cp['header'] ) ) { continue; }
+			$rows[] = array(
+				'key'              => $cp['id'] ?? '',
+				'url'              => esc_url( $cp['url'] ),
+				'platform_name'    => $cp['label'] ?? ( $cp['short'] ?? '' ),
+				'label'            => $cp['detail'] ?? '',
+				'short'            => $cp['short'] ?? '',
+				'class'            => sanitize_html_class( strtolower( $cp['short'] ?? 'custom' ) ),
+				'icon'             => '',
+				'opens_in_new_tab' => true,
+				'sort_order'       => (int) ( $cp['sort_order'] ?? 99 ),
+			);
+		}
+	}
+
 	usort(
 		$rows,
 		static function ( $a, $b ) {
@@ -185,13 +218,39 @@ function ewo_2025_render_sidecard_links() {
 	return true;
 }
 
+/**
+ * Render the header platform chips — all enabled header-surface platforms in
+ * sort order. Replaces the old hardcoded ewo_2025_platform_links() call in
+ * header.php so the list is fully admin-controlled.
+ */
+function ewo_2025_render_header_chips() {
+	$links = ewo_2025_get_platform_surface_links( 'header' );
+	if ( empty( $links ) ) { return; }
+	echo '<div class="ewo-platform-links ewo-platform-links--header" aria-label="' . esc_attr__( 'EWO platform links', 'ewo-2025' ) . '">';
+	foreach ( $links as $row ) {
+		printf(
+			'<a href="%1$s"%2$s aria-label="%3$s"><span aria-hidden="true">%4$s</span><span class="ewo-platform-links__label">%5$s</span></a>',
+			esc_url( $row['url'] ),
+			ewo_2025_link_target_attr( $row['opens_in_new_tab'] ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static literal.
+			esc_attr( $row['platform_name'] ),
+			esc_html( $row['short'] ),
+			esc_html( $row['platform_name'] )
+		);
+	}
+	echo '</div>';
+}
+
+/** Sanitize / validate the full platform links option. */
 function ewo_2025_sanitize_social_links( $input ) {
 	$input  = is_array( $input ) ? $input : array();
 	$output = array();
+
+	// Registry platforms.
 	foreach ( ewo_2025_get_social_platforms() as $key => $p ) {
 		$row = isset( $input[ $key ] ) ? $input[ $key ] : array();
-		if ( is_string( $row ) ) { $row = array( 'url' => $row ); } // Back-compat.
+		if ( is_string( $row ) ) { $row = array( 'url' => $row ); }
 		if ( ! is_array( $row ) ) { $row = array(); }
+
 		$raw_url = isset( $row['url'] ) ? trim( wp_unslash( $row['url'] ) ) : '';
 		if ( '' === $raw_url ) {
 			$url = '';
@@ -200,13 +259,41 @@ function ewo_2025_sanitize_social_links( $input ) {
 		} else {
 			$url = esc_url_raw( $raw_url );
 		}
+
 		$output[ $key ] = array(
-			'url'      => $url,
-			'enabled'  => empty( $row['enabled'] ) ? 0 : 1,
-			'footer'   => empty( $row['footer'] ) ? 0 : 1,
-			'sidecard' => empty( $row['sidecard'] ) ? 0 : 1,
+			'url'        => $url,
+			'enabled'    => empty( $row['enabled'] )    ? 0 : 1,
+			'header'     => empty( $row['header'] )     ? 0 : 1,
+			'footer'     => empty( $row['footer'] )     ? 0 : 1,
+			'sidecard'   => empty( $row['sidecard'] )   ? 0 : 1,
+			'sort_order' => isset( $row['sort_order'] ) ? absint( $row['sort_order'] ) : (int) $p['sort_order'],
 		);
 	}
+
+	// Custom (user-added) platforms stored under _custom.
+	$custom_raw = ( isset( $input['_custom'] ) && is_array( $input['_custom'] ) ) ? $input['_custom'] : array();
+	$custom_out = array();
+	foreach ( $custom_raw as $cp ) {
+		if ( ! is_array( $cp ) ) { continue; }
+		$short = strtoupper( substr( sanitize_text_field( wp_unslash( $cp['short'] ?? '' ) ), 0, 5 ) );
+		if ( '' === $short ) { continue; }
+		$id      = ( ! empty( $cp['id'] ) ) ? sanitize_key( $cp['id'] ) : 'cst_' . time() . '_' . wp_rand( 100, 999 );
+		$raw_url = isset( $cp['url'] ) ? trim( wp_unslash( $cp['url'] ) ) : '';
+		$custom_out[] = array(
+			'id'         => $id,
+			'short'      => $short,
+			'label'      => sanitize_text_field( wp_unslash( $cp['label'] ?? $short ) ),
+			'detail'     => sanitize_text_field( wp_unslash( $cp['detail'] ?? '' ) ),
+			'url'        => $raw_url ? esc_url_raw( $raw_url ) : '',
+			'enabled'    => empty( $cp['enabled'] )    ? 0 : 1,
+			'header'     => empty( $cp['header'] )     ? 0 : 1,
+			'footer'     => empty( $cp['footer'] )     ? 0 : 1,
+			'sidecard'   => empty( $cp['sidecard'] )   ? 0 : 1,
+			'sort_order' => isset( $cp['sort_order'] ) ? absint( $cp['sort_order'] ) : 99,
+		);
+	}
+	$output['_custom'] = $custom_out;
+
 	return $output;
 }
 
@@ -241,6 +328,8 @@ function ewo_2025_has_platform_links( $keys = array() ) {
 	foreach ( $keys as $key ) { if ( ewo_2025_get_platform_url( $key ) ) { return true; } }
 	return false;
 }
+
+/** Back-compat: render chips for a specific keyed list (still used by any callers outside header.php). */
 function ewo_2025_social_links( $keys = array(), $context = 'compact' ) {
 	$platforms = ewo_2025_get_social_platforms();
 	$allowed   = ewo_2025_social_icon_kses();
@@ -266,57 +355,442 @@ function ewo_2025_platform_links( $keys = array(), $class = 'ewo-platform-links'
 	ewo_2025_social_links( $keys ); echo '</div>';
 }
 
+/* ============================================================
+   Settings registration
+   ============================================================ */
+
 function ewo_2025_register_social_settings() {
-	register_setting( 'ewo_2025_social_links_group', EWO_2025_SOCIAL_LINKS_OPTION, array( 'type' => 'array', 'sanitize_callback' => 'ewo_2025_sanitize_social_links', 'default' => array() ) );
+	register_setting(
+		'ewo_2025_social_links_group',
+		EWO_2025_SOCIAL_LINKS_OPTION,
+		array(
+			'type'              => 'array',
+			'sanitize_callback' => 'ewo_2025_sanitize_social_links',
+			'default'           => array(),
+		)
+	);
 }
 add_action( 'admin_init', 'ewo_2025_register_social_settings' );
+
+/* ============================================================
+   Admin page: handler for adding a new custom platform
+   ============================================================ */
+
+function ewo_2025_social_handle_add() {
+	check_admin_referer( 'ewo_social_add' );
+	if ( ! current_user_can( 'manage_options' ) ) { wp_die( 'Forbidden' ); }
+
+	$short = strtoupper( substr( sanitize_text_field( wp_unslash( $_POST['short'] ?? '' ) ), 0, 5 ) );
+	if ( '' === $short ) {
+		wp_safe_redirect( admin_url( 'admin.php?page=ewo-settings&ewo_msg=short_required' ) );
+		exit;
+	}
+
+	$new = array(
+		'id'         => 'cst_' . time() . '_' . wp_rand( 100, 999 ),
+		'short'      => $short,
+		'label'      => sanitize_text_field( wp_unslash( $_POST['label'] ?? $short ) ),
+		'detail'     => sanitize_text_field( wp_unslash( $_POST['detail'] ?? '' ) ),
+		'url'        => esc_url_raw( wp_unslash( $_POST['url'] ?? '' ) ),
+		'enabled'    => ! empty( $_POST['enabled'] )  ? 1 : 0,
+		'header'     => ! empty( $_POST['header'] )   ? 1 : 0,
+		'footer'     => ! empty( $_POST['footer'] )   ? 1 : 0,
+		'sidecard'   => ! empty( $_POST['sidecard'] ) ? 1 : 0,
+		'sort_order' => absint( $_POST['sort_order'] ?? 99 ),
+	);
+
+	$saved = get_option( EWO_2025_SOCIAL_LINKS_OPTION, array() );
+	if ( ! is_array( $saved ) ) { $saved = array(); }
+	if ( ! isset( $saved['_custom'] ) ) { $saved['_custom'] = array(); }
+	$saved['_custom'][] = $new;
+	update_option( EWO_2025_SOCIAL_LINKS_OPTION, ewo_2025_sanitize_social_links( $saved ) );
+
+	wp_safe_redirect( admin_url( 'admin.php?page=ewo-settings&ewo_msg=added' ) );
+	exit;
+}
+add_action( 'admin_post_ewo_social_add', 'ewo_2025_social_handle_add' );
+
+/* ============================================================
+   Admin page: menu + render
+   ============================================================ */
+
 function ewo_2025_social_settings_menu() {
-	add_menu_page( __( 'EWO Settings', 'ewo-2025' ), __( 'EWO Settings', 'ewo-2025' ), 'manage_options', 'ewo-settings', 'ewo_2025_render_social_settings_page', 'dashicons-admin-generic', 61 );
-	add_submenu_page( 'ewo-settings', __( 'Social Links', 'ewo-2025' ), __( 'Social Links', 'ewo-2025' ), 'manage_options', 'ewo-settings', 'ewo_2025_render_social_settings_page' );
+	add_menu_page(
+		__( 'EWO Settings', 'ewo-2025' ),
+		__( 'EWO Settings', 'ewo-2025' ),
+		'manage_options',
+		'ewo-settings',
+		'ewo_2025_render_social_settings_page',
+		'dashicons-admin-generic',
+		61
+	);
+	add_submenu_page(
+		'ewo-settings',
+		__( 'Social Links', 'ewo-2025' ),
+		__( 'Social Links', 'ewo-2025' ),
+		'manage_options',
+		'ewo-settings',
+		'ewo_2025_render_social_settings_page'
+	);
 }
 add_action( 'admin_menu', 'ewo_2025_social_settings_menu' );
+
+/** Returns merged registry + custom platforms sorted for the admin table. */
+function ewo_2025_get_all_platforms_admin() {
+	$items = array();
+
+	foreach ( ewo_2025_get_social_platforms() as $key => $p ) {
+		$s       = ewo_2025_get_platform_settings( $key );
+		$items[] = array(
+			'type'       => 'registry',
+			'key'        => $key,
+			'short'      => $p['short'],
+			'label'      => $p['label'],
+			'detail'     => $p['detail'],
+			'seed_url'   => $p['seed_url'],
+			'url'        => $s['raw_url'],
+			'enabled'    => $s['enabled'],
+			'header'     => $s['header'],
+			'footer'     => $s['footer'],
+			'sidecard'   => $s['sidecard'],
+			'sort_order' => $s['sort_order'],
+		);
+	}
+
+	$cidx = 0;
+	foreach ( ewo_2025_get_custom_platforms() as $cp ) {
+		$items[] = array(
+			'type'       => 'custom',
+			'key'        => $cp['id'] ?? ( 'cst_' . $cidx ),
+			'cidx'       => $cidx,
+			'short'      => $cp['short'] ?? '',
+			'label'      => $cp['label'] ?? '',
+			'detail'     => $cp['detail'] ?? '',
+			'seed_url'   => '',
+			'url'        => $cp['url'] ?? '',
+			'enabled'    => ! empty( $cp['enabled'] ),
+			'header'     => ! empty( $cp['header'] ),
+			'footer'     => ! empty( $cp['footer'] ),
+			'sidecard'   => ! empty( $cp['sidecard'] ),
+			'sort_order' => (int) ( $cp['sort_order'] ?? 99 ),
+		);
+		$cidx++;
+	}
+
+	usort(
+		$items,
+		static function ( $a, $b ) {
+			return $a['sort_order'] <=> $b['sort_order'];
+		}
+	);
+	return $items;
+}
+
 function ewo_2025_render_social_settings_page() {
 	if ( ! current_user_can( 'manage_options' ) ) { return; }
+
+	// Handle GET delete of a custom platform.
+	if (
+		isset( $_GET['action'], $_GET['id'] ) &&
+		'delete_cust' === sanitize_key( $_GET['action'] )
+	) {
+		$id = sanitize_key( $_GET['id'] );
+		check_admin_referer( 'ewo_sl_del_' . $id );
+		$saved = get_option( EWO_2025_SOCIAL_LINKS_OPTION, array() );
+		if ( is_array( $saved ) && isset( $saved['_custom'] ) ) {
+			$saved['_custom'] = array_values(
+				array_filter( $saved['_custom'], static function ( $cp ) use ( $id ) {
+					return ( $cp['id'] ?? '' ) !== $id;
+				} )
+			);
+		}
+		update_option( EWO_2025_SOCIAL_LINKS_OPTION, $saved );
+		wp_safe_redirect( admin_url( 'admin.php?page=ewo-settings&ewo_msg=deleted' ) );
+		exit;
+	}
+
+	// Compute stats.
+	$all        = ewo_2025_get_all_platforms_admin();
+	$total      = count( $all );
+	$n_enabled  = count( array_filter( $all, static fn( $r ) => $r['enabled'] ) );
+	$n_header   = count( array_filter( $all, static fn( $r ) => $r['enabled'] && $r['header'] ) );
+	$n_footer   = count( array_filter( $all, static fn( $r ) => $r['enabled'] && $r['footer'] ) );
+	$n_sidecard = count( array_filter( $all, static fn( $r ) => $r['enabled'] && $r['sidecard'] ) );
+	$n_custom   = count( ewo_2025_get_custom_platforms() );
+
+	$msg = sanitize_key( $_GET['ewo_msg'] ?? '' );
 	$option = EWO_2025_SOCIAL_LINKS_OPTION;
 	?>
-	<div class="wrap ewo-social-settings">
-		<h1><?php esc_html_e( 'EWO Settings — Social Links', 'ewo-2025' ); ?></h1>
-		<p><?php esc_html_e( 'One URL per platform powers the footer and the sidebar Follow card. Use the toggles to choose where each link appears. Turn a link Off to hide it everywhere. A blank URL falls back to the seed default shown below the field; a link with no URL and no seed default is hidden.', 'ewo-2025' ); ?></p>
-		<style>
-			.ewo-social-settings .ewo-toggle{display:inline-flex;align-items:center;gap:8px;margin-right:18px;font-weight:600}
-			.ewo-social-settings .ewo-switch{position:relative;display:inline-block;width:42px;height:22px;flex:0 0 auto}
-			.ewo-social-settings .ewo-switch input{position:absolute;opacity:0;width:0;height:0}
-			.ewo-social-settings .ewo-switch span{position:absolute;inset:0;cursor:pointer;background:#c3c4c7;border-radius:999px;transition:background .15s}
-			.ewo-social-settings .ewo-switch span::before{content:"";position:absolute;height:16px;width:16px;left:3px;top:3px;background:#fff;border-radius:50%;transition:transform .15s}
-			.ewo-social-settings .ewo-switch input:checked+span{background:#2271b1}
-			.ewo-social-settings .ewo-switch input:checked+span::before{transform:translateX(20px)}
-			.ewo-social-settings .ewo-place{display:inline-flex;align-items:center;gap:6px;margin-right:16px}
-			.ewo-social-settings td .description{margin-top:6px}
-			.ewo-social-settings .ewo-row-disabled td{opacity:.55}
-		</style>
-		<form action="options.php" method="post">
-			<?php settings_fields( 'ewo_2025_social_links_group' ); ?>
-			<table class="form-table" role="presentation">
-				<?php foreach ( ewo_2025_get_social_platforms() as $key => $platform ) :
-					$s    = ewo_2025_get_platform_settings( $key );
+<div class="ewo-sl-wrap">
+<style>
+.ewo-sl-wrap *{box-sizing:border-box}
+.ewo-sl-wrap{background:#060f1e;color:#dde8f5;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh;padding:0 0 80px}
+.ewo-sl-page-header{background:#0b1829;border-bottom:1px solid rgba(50,100,160,.28);padding:28px 32px 24px}
+.ewo-sl-page-header h1{color:#fff;font-size:1.45rem;font-weight:700;margin:0 0 6px}
+.ewo-sl-page-header p{color:#6b88b5;font-size:.85rem;margin:0}
+.ewo-sl-inner{padding:28px 32px 0}
+.ewo-sl-notice{background:rgba(45,184,122,.12);border:1px solid rgba(45,184,122,.3);border-radius:6px;color:#2db87a;font-size:.82rem;font-weight:600;margin-bottom:20px;padding:10px 16px}
+.ewo-sl-notice--error{background:rgba(224,84,84,.12);border-color:rgba(224,84,84,.3);color:#e05454}
+.ewo-sl-stats{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:28px}
+.ewo-sl-stat{background:#0b1829;border:1px solid rgba(50,100,160,.28);border-radius:8px;padding:14px 16px}
+.ewo-sl-stat__num{color:#fff;font-size:1.6rem;font-weight:800;line-height:1}
+.ewo-sl-stat__label{color:#6b88b5;font-size:.72rem;font-weight:600;letter-spacing:.08em;margin-top:4px;text-transform:uppercase}
+.ewo-sl-section-head{align-items:center;border-bottom:1px solid rgba(50,100,160,.18);display:flex;gap:12px;justify-content:space-between;margin-bottom:16px;padding-bottom:12px}
+.ewo-sl-section-title{color:#8aaad4;font-size:.68rem;font-weight:800;letter-spacing:.12em;margin:0;text-transform:uppercase}
+.ewo-sl-table-wrap{background:#0b1829;border:1px solid rgba(50,100,160,.28);border-radius:10px;overflow:hidden;margin-bottom:28px}
+.ewo-sl-table{border-collapse:collapse;width:100%}
+.ewo-sl-table th{background:#060f1e;border-bottom:1px solid rgba(50,100,160,.28);color:#6b88b5;font-size:.65rem;font-weight:800;letter-spacing:.1em;padding:10px 12px;text-align:left;text-transform:uppercase;white-space:nowrap}
+.ewo-sl-table th.center{text-align:center}
+.ewo-sl-table td{border-bottom:1px solid rgba(50,100,160,.14);color:#dde8f5;font-size:.82rem;padding:10px 12px;vertical-align:middle}
+.ewo-sl-table tr:last-child td{border-bottom:0}
+.ewo-sl-table tr.custom-row td{background:rgba(215,168,75,.04)}
+.ewo-sl-table tr.disabled-row td{opacity:.55}
+.ewo-sl-short-badge{align-items:center;background:rgba(0,163,255,.1);border:1px solid rgba(0,163,255,.22);border-radius:50%;color:#d7a84b;display:inline-flex;font-size:.62rem;font-weight:800;height:28px;justify-content:center;letter-spacing:.06em;width:28px}
+.ewo-sl-input{background:#0f2035;border:1px solid rgba(50,100,160,.4);border-radius:5px;color:#dde8f5;font-size:.8rem;padding:5px 9px;width:100%}
+.ewo-sl-input:focus{border-color:#d7a84b;outline:none}
+.ewo-sl-url-input{min-width:200px}
+.ewo-sl-order-input{text-align:center;width:52px}
+.ewo-sl-chk-cell{text-align:center}
+.ewo-sl-chk-cell input[type=checkbox]{accent-color:#d7a84b;cursor:pointer;height:15px;width:15px}
+.ewo-sl-tag{background:rgba(139,170,212,.12);border-radius:4px;color:#8aaad4;font-size:.6rem;font-weight:700;letter-spacing:.06em;padding:2px 6px;text-transform:uppercase;white-space:nowrap}
+.ewo-sl-tag--custom{background:rgba(215,168,75,.12);color:#d7a84b}
+.ewo-sl-delete-link{color:#e05454;font-size:.72rem;font-weight:600;text-decoration:none;white-space:nowrap}
+.ewo-sl-delete-link:hover{color:#ff6b6b}
+.ewo-sl-btn{background:#d7a84b;border:0;border-radius:6px;color:#0a0600;cursor:pointer;font-size:.8rem;font-weight:700;letter-spacing:.03em;padding:10px 22px;transition:background 140ms}
+.ewo-sl-btn:hover{background:#b08020}
+.ewo-sl-btn--outline{background:transparent;border:1px solid rgba(50,100,160,.4);color:#8aaad4}
+.ewo-sl-btn--outline:hover{border-color:#d7a84b;color:#d7a84b}
+.ewo-sl-btn--sm{font-size:.74rem;padding:7px 14px}
+.ewo-sl-save-row{padding:16px 0 0;display:flex;gap:10px;align-items:center}
+.ewo-sl-add-grid{display:grid;grid-template-columns:80px 1fr 1fr 1fr;gap:10px;margin-bottom:12px}
+.ewo-sl-add-toggles{align-items:center;display:flex;gap:18px;flex-wrap:wrap;margin-bottom:14px}
+.ewo-sl-toggle-label{align-items:center;display:flex;gap:6px;color:#8aaad4;cursor:pointer;font-size:.8rem;font-weight:600}
+.ewo-sl-toggle-label input{accent-color:#d7a84b;height:14px;width:14px}
+.ewo-sl-field-label{color:#6b88b5;display:block;font-size:.7rem;font-weight:700;letter-spacing:.07em;margin-bottom:4px;text-transform:uppercase}
+.ewo-sl-add-wrap{background:#0b1829;border:1px solid rgba(50,100,160,.28);border-radius:10px;padding:20px 22px}
+.ewo-sl-add-title{color:#fff;font-size:.95rem;font-weight:700;margin:0 0 14px}
+@media(max-width:900px){.ewo-sl-stats{grid-template-columns:repeat(3,1fr)}.ewo-sl-add-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:640px){.ewo-sl-stats{grid-template-columns:1fr 1fr}.ewo-sl-add-grid{grid-template-columns:1fr}.ewo-sl-inner{padding:18px 16px 0}.ewo-sl-page-header{padding:20px 16px 16px}}
+</style>
+
+<div class="ewo-sl-page-header">
+	<h1><?php esc_html_e( 'Social &amp; Platform Links', 'ewo-2025' ); ?></h1>
+	<p><?php esc_html_e( 'Manage the platform chips shown in the site header, footer cards, and sidebar. Enabled + Header = visible in the header chip row. Use Sort Order to reorder.', 'ewo-2025' ); ?></p>
+</div>
+
+<div class="ewo-sl-inner">
+
+<?php if ( 'added' === $msg ) : ?>
+	<div class="ewo-sl-notice"><?php esc_html_e( 'Platform added.', 'ewo-2025' ); ?></div>
+<?php elseif ( 'deleted' === $msg ) : ?>
+	<div class="ewo-sl-notice"><?php esc_html_e( 'Platform deleted.', 'ewo-2025' ); ?></div>
+<?php elseif ( 'short_required' === $msg ) : ?>
+	<div class="ewo-sl-notice ewo-sl-notice--error"><?php esc_html_e( 'Short code is required.', 'ewo-2025' ); ?></div>
+<?php endif; ?>
+
+<?php if ( isset( $_GET['settings-updated'] ) ) : ?>
+	<div class="ewo-sl-notice"><?php esc_html_e( 'Settings saved.', 'ewo-2025' ); ?></div>
+<?php endif; ?>
+
+<!-- Stats -->
+<div class="ewo-sl-stats">
+	<div class="ewo-sl-stat"><div class="ewo-sl-stat__num"><?php echo esc_html( $total ); ?></div><div class="ewo-sl-stat__label"><?php esc_html_e( 'Total Platforms', 'ewo-2025' ); ?></div></div>
+	<div class="ewo-sl-stat"><div class="ewo-sl-stat__num"><?php echo esc_html( $n_enabled ); ?></div><div class="ewo-sl-stat__label"><?php esc_html_e( 'Enabled', 'ewo-2025' ); ?></div></div>
+	<div class="ewo-sl-stat"><div class="ewo-sl-stat__num"><?php echo esc_html( $n_header ); ?></div><div class="ewo-sl-stat__label"><?php esc_html_e( 'Header Chips', 'ewo-2025' ); ?></div></div>
+	<div class="ewo-sl-stat"><div class="ewo-sl-stat__num"><?php echo esc_html( $n_footer ); ?></div><div class="ewo-sl-stat__label"><?php esc_html_e( 'Footer', 'ewo-2025' ); ?></div></div>
+	<div class="ewo-sl-stat"><div class="ewo-sl-stat__num"><?php echo esc_html( $n_custom ); ?></div><div class="ewo-sl-stat__label"><?php esc_html_e( 'Custom Added', 'ewo-2025' ); ?></div></div>
+</div>
+
+<!-- Main edit form -->
+<div class="ewo-sl-section-head">
+	<h2 class="ewo-sl-section-title"><?php esc_html_e( 'Manage Platforms', 'ewo-2025' ); ?></h2>
+</div>
+
+<form method="post" action="options.php">
+	<?php settings_fields( 'ewo_2025_social_links_group' ); ?>
+
+	<div class="ewo-sl-table-wrap">
+		<table class="ewo-sl-table">
+			<thead>
+				<tr>
+					<th><?php esc_html_e( 'Order', 'ewo-2025' ); ?></th>
+					<th><?php esc_html_e( 'Short', 'ewo-2025' ); ?></th>
+					<th><?php esc_html_e( 'Platform', 'ewo-2025' ); ?></th>
+					<th><?php esc_html_e( 'URL', 'ewo-2025' ); ?></th>
+					<th class="center"><?php esc_html_e( 'Header', 'ewo-2025' ); ?></th>
+					<th class="center"><?php esc_html_e( 'Footer', 'ewo-2025' ); ?></th>
+					<th class="center"><?php esc_html_e( 'Side', 'ewo-2025' ); ?></th>
+					<th class="center"><?php esc_html_e( 'On', 'ewo-2025' ); ?></th>
+					<th></th>
+				</tr>
+			</thead>
+			<tbody>
+			<?php
+			$custom_form_idx = 0;
+			foreach ( $all as $row ) :
+				$is_custom = 'custom' === $row['type'];
+				$key       = $row['key'];
+				if ( $is_custom ) {
+					$base = $option . '[_custom][' . $custom_form_idx . ']';
+					$custom_form_idx++;
+				} else {
 					$base = $option . '[' . $key . ']';
-					?>
-					<tr class="<?php echo $s['enabled'] ? '' : 'ewo-row-disabled'; ?>">
-						<th scope="row"><label for="ewo-social-<?php echo esc_attr( $key ); ?>"><?php echo esc_html( $platform['label'] ); ?></label><br><span class="description"><?php echo esc_html( $platform['detail'] ); ?></span></th>
-						<td>
-							<input class="regular-text" type="<?php echo 'email' === $key ? 'text' : 'url'; ?>" id="ewo-social-<?php echo esc_attr( $key ); ?>" name="<?php echo esc_attr( $base ); ?>[url]" value="<?php echo esc_attr( isset( $s['raw_url'] ) ? $s['raw_url'] : $s['url'] ); ?>" placeholder="<?php echo esc_attr( $platform['seed_url'] ? $platform['seed_url'] : 'https://' ); ?>" />
-							<?php if ( ! empty( $platform['seed_url'] ) ) : ?><p class="description"><?php printf( /* translators: %s: seed URL. */ esc_html__( 'Seed default: %s', 'ewo-2025' ), esc_html( $platform['seed_url'] ) ); ?></p><?php endif; ?>
-							<p>
-								<label class="ewo-toggle"><span class="ewo-switch"><input type="checkbox" name="<?php echo esc_attr( $base ); ?>[enabled]" value="1" <?php checked( $s['enabled'] ); ?>><span></span></span><?php esc_html_e( 'Enabled', 'ewo-2025' ); ?></label>
-								<label class="ewo-place"><input type="checkbox" name="<?php echo esc_attr( $base ); ?>[footer]" value="1" <?php checked( $s['footer'] ); ?>><?php esc_html_e( 'Footer', 'ewo-2025' ); ?></label>
-								<label class="ewo-place"><input type="checkbox" name="<?php echo esc_attr( $base ); ?>[sidecard]" value="1" <?php checked( $s['sidecard'] ); ?>><?php esc_html_e( 'Side Card', 'ewo-2025' ); ?></label>
-							</p>
-						</td>
-					</tr>
-				<?php endforeach; ?>
-			</table>
-			<?php submit_button(); ?>
-		</form>
+				}
+				$row_class = ( ! $row['enabled'] ? 'disabled-row ' : '' ) . ( $is_custom ? 'custom-row' : '' );
+				?>
+				<tr class="<?php echo esc_attr( trim( $row_class ) ); ?>">
+					<td>
+						<input type="number" name="<?php echo esc_attr( $base ); ?>[sort_order]"
+							value="<?php echo esc_attr( $row['sort_order'] ); ?>"
+							min="0" max="999"
+							class="ewo-sl-input ewo-sl-order-input">
+					</td>
+					<td>
+						<?php if ( $is_custom ) : ?>
+							<input type="hidden" name="<?php echo esc_attr( $base ); ?>[id]" value="<?php echo esc_attr( $key ); ?>">
+							<input type="text" name="<?php echo esc_attr( $base ); ?>[short]"
+								value="<?php echo esc_attr( $row['short'] ); ?>"
+								maxlength="5"
+								class="ewo-sl-input"
+								style="width:52px;text-align:center;text-transform:uppercase"
+								placeholder="YT">
+						<?php else : ?>
+							<span class="ewo-sl-short-badge"><?php echo esc_html( $row['short'] ); ?></span>
+						<?php endif; ?>
+					</td>
+					<td>
+						<?php if ( $is_custom ) : ?>
+							<input type="text" name="<?php echo esc_attr( $base ); ?>[label]"
+								value="<?php echo esc_attr( $row['label'] ); ?>"
+								class="ewo-sl-input"
+								style="min-width:110px"
+								placeholder="<?php esc_attr_e( 'Platform name', 'ewo-2025' ); ?>">
+							<input type="text" name="<?php echo esc_attr( $base ); ?>[detail]"
+								value="<?php echo esc_attr( $row['detail'] ); ?>"
+								class="ewo-sl-input"
+								style="min-width:110px;margin-top:4px"
+								placeholder="<?php esc_attr_e( 'Detail / tagline', 'ewo-2025' ); ?>">
+						<?php else : ?>
+							<span style="font-weight:600"><?php echo esc_html( $row['label'] ); ?></span>
+							<br><span class="ewo-sl-tag"><?php esc_html_e( 'Built-in', 'ewo-2025' ); ?></span>
+						<?php endif; ?>
+					</td>
+					<td>
+						<input type="url" name="<?php echo esc_attr( $base ); ?>[url]"
+							value="<?php echo esc_attr( $row['url'] ); ?>"
+							class="ewo-sl-input ewo-sl-url-input"
+							placeholder="<?php echo esc_attr( $row['seed_url'] ?: 'https://' ); ?>">
+						<?php if ( ! $is_custom && $row['seed_url'] ) : ?>
+							<span style="color:#6b88b5;font-size:.68rem;display:block;margin-top:3px">
+								<?php esc_html_e( 'Seed:', 'ewo-2025' ); ?> <?php echo esc_html( $row['seed_url'] ); ?>
+							</span>
+						<?php endif; ?>
+					</td>
+					<td class="ewo-sl-chk-cell">
+						<input type="checkbox" name="<?php echo esc_attr( $base ); ?>[header]" value="1" <?php checked( $row['header'] ); ?>>
+					</td>
+					<td class="ewo-sl-chk-cell">
+						<input type="checkbox" name="<?php echo esc_attr( $base ); ?>[footer]" value="1" <?php checked( $row['footer'] ); ?>>
+					</td>
+					<td class="ewo-sl-chk-cell">
+						<input type="checkbox" name="<?php echo esc_attr( $base ); ?>[sidecard]" value="1" <?php checked( $row['sidecard'] ); ?>>
+					</td>
+					<td class="ewo-sl-chk-cell">
+						<input type="checkbox" name="<?php echo esc_attr( $base ); ?>[enabled]" value="1" <?php checked( $row['enabled'] ); ?>>
+					</td>
+					<td>
+						<?php if ( $is_custom ) :
+							$del_url = wp_nonce_url(
+								admin_url( 'admin.php?page=ewo-settings&action=delete_cust&id=' . rawurlencode( $key ) ),
+								'ewo_sl_del_' . $key
+							);
+							?>
+							<a href="<?php echo esc_url( $del_url ); ?>"
+								class="ewo-sl-delete-link"
+								onclick="return confirm('<?php esc_attr_e( 'Delete this platform?', 'ewo-2025' ); ?>')">
+								<?php esc_html_e( '&#10005; Delete', 'ewo-2025' ); ?>
+							</a>
+						<?php endif; ?>
+					</td>
+				</tr>
+			<?php endforeach; ?>
+			</tbody>
+		</table>
 	</div>
+
+	<div class="ewo-sl-save-row">
+		<?php submit_button( __( 'Save All Changes', 'ewo-2025' ), 'primary', 'submit', false, array( 'class' => 'ewo-sl-btn' ) ); ?>
+		<span style="color:#6b88b5;font-size:.78rem"><?php esc_html_e( 'Saves URLs, toggles, and display order for all platforms above.', 'ewo-2025' ); ?></span>
+	</div>
+</form>
+
+<!-- Add New Platform -->
+<div style="margin-top:36px">
+<div class="ewo-sl-section-head">
+	<h2 class="ewo-sl-section-title"><?php esc_html_e( 'Add New Platform', 'ewo-2025' ); ?></h2>
+</div>
+<div class="ewo-sl-add-wrap">
+	<p class="ewo-sl-add-title"><?php esc_html_e( '+ New Custom Platform', 'ewo-2025' ); ?></p>
+	<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+		<?php wp_nonce_field( 'ewo_social_add' ); ?>
+		<input type="hidden" name="action" value="ewo_social_add">
+
+		<div class="ewo-sl-add-grid">
+			<div>
+				<label class="ewo-sl-field-label" for="sl-new-short"><?php esc_html_e( 'Short Code *', 'ewo-2025' ); ?></label>
+				<input id="sl-new-short" type="text" name="short" maxlength="5" required
+					class="ewo-sl-input"
+					style="text-transform:uppercase"
+					placeholder="IG">
+				<span style="color:#6b88b5;font-size:.68rem;display:block;margin-top:3px"><?php esc_html_e( 'Max 5 chars', 'ewo-2025' ); ?></span>
+			</div>
+			<div>
+				<label class="ewo-sl-field-label" for="sl-new-label"><?php esc_html_e( 'Platform Name', 'ewo-2025' ); ?></label>
+				<input id="sl-new-label" type="text" name="label"
+					class="ewo-sl-input" placeholder="<?php esc_attr_e( 'Instagram', 'ewo-2025' ); ?>">
+			</div>
+			<div>
+				<label class="ewo-sl-field-label" for="sl-new-detail"><?php esc_html_e( 'Detail / Tagline', 'ewo-2025' ); ?></label>
+				<input id="sl-new-detail" type="text" name="detail"
+					class="ewo-sl-input" placeholder="<?php esc_attr_e( 'Follow on Instagram', 'ewo-2025' ); ?>">
+			</div>
+			<div>
+				<label class="ewo-sl-field-label" for="sl-new-url"><?php esc_html_e( 'URL', 'ewo-2025' ); ?></label>
+				<input id="sl-new-url" type="url" name="url"
+					class="ewo-sl-input" placeholder="https://">
+			</div>
+		</div>
+
+		<div class="ewo-sl-add-toggles">
+			<label class="ewo-sl-toggle-label">
+				<input type="checkbox" name="enabled" value="1" checked>
+				<?php esc_html_e( 'Enabled', 'ewo-2025' ); ?>
+			</label>
+			<label class="ewo-sl-toggle-label">
+				<input type="checkbox" name="header" value="1" checked>
+				<?php esc_html_e( 'Header chip', 'ewo-2025' ); ?>
+			</label>
+			<label class="ewo-sl-toggle-label">
+				<input type="checkbox" name="footer" value="1">
+				<?php esc_html_e( 'Footer', 'ewo-2025' ); ?>
+			</label>
+			<label class="ewo-sl-toggle-label">
+				<input type="checkbox" name="sidecard" value="1">
+				<?php esc_html_e( 'Side Card', 'ewo-2025' ); ?>
+			</label>
+			<div style="margin-left:auto;display:flex;align-items:center;gap:8px">
+				<label class="ewo-sl-field-label" for="sl-new-order" style="margin:0"><?php esc_html_e( 'Order:', 'ewo-2025' ); ?></label>
+				<input id="sl-new-order" type="number" name="sort_order" value="99" min="0" max="999"
+					class="ewo-sl-input" style="width:60px;text-align:center">
+			</div>
+		</div>
+
+		<button type="submit" class="ewo-sl-btn"><?php esc_html_e( '+ Add Platform', 'ewo-2025' ); ?></button>
+	</form>
+</div>
+</div>
+
+</div><!-- .ewo-sl-inner -->
+</div><!-- .ewo-sl-wrap -->
 	<?php
 }

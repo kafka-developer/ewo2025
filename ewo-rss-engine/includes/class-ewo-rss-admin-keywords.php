@@ -41,17 +41,10 @@ class EWO_RSS_Admin_Keywords {
 	}
 
 	/**
-	 * Add the submenu.
+	 * Keywords are managed inside Strategic Domains — no standalone menu entry.
 	 */
 	public function register_menu() {
-		$this->hook = (string) add_submenu_page(
-			self::PARENT,
-			__( 'Keywords', 'ewo-rss-engine' ),
-			__( 'Keywords', 'ewo-rss-engine' ),
-			self::CAP,
-			self::MENU_SLUG,
-			array( $this, 'render' )
-		);
+		$this->hook = '';
 	}
 
 	/* ---------------------------------------------------------------------

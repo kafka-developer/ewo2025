@@ -41,7 +41,7 @@
 			</div>
 
 			<div class="site-header__actions">
-				<?php ewo_2025_platform_links( array( 'youtube', 'substack', 'spotify', 'x', 'rumble', 'tiktok', 'amazon_book', 'newsletter' ), 'ewo-platform-links ewo-platform-links--header' ); ?>
+				<?php if ( ewo_2025_feature_enabled( 'header_chips' ) ) { ewo_2025_render_header_chips(); } ?>
 
 				<nav id="site-navigation" class="main-navigation" aria-label="<?php esc_attr_e( 'Primary menu', 'ewo-2025' ); ?>">
 					<button class="menu-toggle" type="button" aria-controls="primary-menu" aria-expanded="false">

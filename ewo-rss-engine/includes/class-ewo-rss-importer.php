@@ -54,6 +54,12 @@ class EWO_RSS_Importer {
 		);
 
 		foreach ( $this->sources->get_active_sources() as $source_id ) {
+			// Keyword-generated feeds capture Sources on their own 30-minute
+			// schedule (see EWO_RSS_Keyword_Feeds); skip them in the hourly run.
+			if ( EWO_RSS_Keyword_Feeds::is_keyword_feed( $source_id ) ) {
+				continue;
+			}
+
 			$result = $this->import_source( $source_id );
 
 			++$totals['sources'];
@@ -73,6 +79,12 @@ class EWO_RSS_Importer {
 	 * @return array<string,int> Per-source totals.
 	 */
 	public function import_source( $source_id ) {
+		// Keyword-generated feeds extract full-article Sources instead of
+		// creating posts; route them through the keyword pipeline.
+		if ( EWO_RSS_Keyword_Feeds::is_keyword_feed( $source_id ) ) {
+			return EWO_RSS_Keyword_Feeds::import_feed( $source_id );
+		}
+
 		$result   = array(
 			'found'   => 0,
 			'created' => 0,

@@ -39,12 +39,12 @@ function ewo_2025_register_content_types() {
 				'not_found_in_trash' => __( 'No community posts in Trash.', 'ewo-2025' ),
 			),
 			'public'        => true,
+			'show_ui'       => false,
+			'show_in_menu'  => false,
 			'has_archive'   => false,
 			'show_in_rest'  => true,
-			'menu_icon'     => 'dashicons-format-status',
-			'menu_position' => 26,
 			'supports'      => array( 'title', 'editor', 'thumbnail', 'author' ),
-			'rewrite'       => array( 'slug' => 'community' ),
+			'rewrite'       => false,
 		)
 	);
 
@@ -64,10 +64,9 @@ function ewo_2025_register_content_types() {
 				'not_found_in_trash' => __( 'No predictions in Trash.', 'ewo-2025' ),
 			),
 			'public'        => true,
+			'show_in_menu'  => false,
 			'has_archive'   => false,
 			'show_in_rest'  => true,
-			'menu_icon'     => 'dashicons-chart-line',
-			'menu_position' => 27,
 			'supports'      => array( 'title', 'editor', 'excerpt', 'thumbnail' ),
 			'rewrite'       => array( 'slug' => 'predictions' ),
 		)
@@ -76,12 +75,39 @@ function ewo_2025_register_content_types() {
 add_action( 'init', 'ewo_2025_register_content_types' );
 
 /**
+ * Register the Community Wall category taxonomy.
+ *
+ * show_ui/show_in_menu are false — all management goes through the
+ * custom EWO Community Wall admin pages. rewrite is false because the
+ * theme handles /community-wall/category/{slug}/ rewrites manually.
+ */
+function ewo_2025_register_cw_taxonomy() {
+	register_taxonomy(
+		'ewo_cw_cat',
+		'ewo_community_post',
+		array(
+			'labels'        => array(
+				'name'          => __( 'Community Categories', 'ewo-2025' ),
+				'singular_name' => __( 'Community Category', 'ewo-2025' ),
+			),
+			'public'        => true,
+			'show_ui'       => false,
+			'show_in_menu'  => false,
+			'show_in_rest'  => false,
+			'hierarchical'  => false,
+			'rewrite'       => false,
+		)
+	);
+}
+add_action( 'init', 'ewo_2025_register_cw_taxonomy' );
+
+/**
  * Flush rewrite rules once after these post types are introduced or changed,
  * so single permalinks resolve without a manual Settings → Permalinks save.
  */
 function ewo_2025_maybe_flush_content_type_rewrites() {
 	$flag    = 'ewo_2025_cpt_rewrites';
-	$current = '1'; // Bump when CPT rewrite rules change.
+	$current = '3'; // Bump when CPT rewrite rules change.
 
 	if ( get_option( $flag ) !== $current ) {
 		flush_rewrite_rules( false );

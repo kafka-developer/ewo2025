@@ -854,3 +854,96 @@
 	color: #787c82;
 	font-style: italic;
 }
+
+/* Sources — filter label for Review Status */
+.ewo-src-filter-label {
+	font-size: 13px;
+	font-weight: 600;
+	color: #1d2327;
+	white-space: nowrap;
+}
+
+/* Sources — custom pagination bar */
+.ewo-src-pgbar {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 12px;
+	padding: 14px 0;
+}
+
+.ewo-src-pg-count {
+	font-size: 13px;
+	color: #50575e;
+}
+
+.ewo-src-pagination {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 4px;
+}
+
+/* Base button — numbers */
+.ewo-pg-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 36px;
+	height: 36px;
+	padding: 0 10px;
+	font-size: 14px;
+	font-weight: 500;
+	line-height: 1;
+	border: 1px solid #c3c4c7;
+	border-radius: 4px;
+	text-decoration: none;
+	color: #2271b1;
+	background: #fff;
+	cursor: pointer;
+	transition: background 0.1s, border-color 0.1s;
+	box-sizing: border-box;
+}
+
+a.ewo-pg-btn:hover {
+	background: #f0f6fc;
+	border-color: #2271b1;
+	color: #135e96;
+}
+
+/* Current page */
+.ewo-pg-btn.ewo-pg-current {
+	background: #2271b1;
+	border-color: #2271b1;
+	color: #fff;
+	cursor: default;
+	pointer-events: none;
+	font-weight: 700;
+}
+
+/* Prev / Next — wider padding */
+.ewo-pg-btn.ewo-pg-nav {
+	padding: 0 14px;
+	font-weight: 600;
+	min-width: 0;
+}
+
+/* Disabled Prev / Next */
+.ewo-pg-btn.ewo-pg-disabled {
+	background: #f6f7f7;
+	border-color: #dcdcde;
+	color: #a7aaad;
+	cursor: not-allowed;
+	pointer-events: none;
+}
+
+/* Ellipsis */
+.ewo-pg-btn.ewo-pg-dots {
+	border-color: transparent;
+	background: transparent;
+	color: #50575e;
+	cursor: default;
+	pointer-events: none;
+	font-weight: 700;
+	letter-spacing: .05em;
+}

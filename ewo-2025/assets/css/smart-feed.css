@@ -1,0 +1,371 @@
+/*
+ * EWO 2025 — Smart Feed public page styles.
+ * Loaded on /smart-feed/ and /smartfeed/.
+ */
+
+/* ================================================================
+   Page shell
+   ================================================================ */
+
+.ewo-sf-main {
+	background: var(--ewo-navy);
+	min-height: 60vh;
+}
+
+.ewo-sf-container {
+	margin: 0 auto;
+	max-width: var(--ewo-max-width);
+	padding-left:  clamp(16px, 4vw, 48px);
+	padding-right: clamp(16px, 4vw, 48px);
+	width: 100%;
+}
+
+/* ================================================================
+   Hero
+   ================================================================ */
+
+.ewo-sf-hero {
+	border-bottom: 1px solid var(--ewo-border);
+	padding: clamp(44px, 6vw, 80px) 0 clamp(28px, 4vw, 52px);
+	text-align: center;
+}
+
+.ewo-sf-hero-title {
+	color: var(--ewo-white);
+	font-family: Georgia, "Times New Roman", serif;
+	font-size: clamp(2rem, 4.5vw, 3.2rem);
+	font-weight: normal;
+	line-height: 1.15;
+	margin: 8px 0 14px;
+}
+
+.ewo-sf-hero-desc {
+	color: var(--ewo-muted);
+	font-size: 0.97rem;
+	line-height: 1.7;
+	margin: 0 auto;
+	max-width: 58ch;
+}
+
+/* ================================================================
+   Body
+   ================================================================ */
+
+.ewo-sf-body {
+	padding-bottom: clamp(56px, 8vw, 100px);
+	padding-top:    clamp(28px, 4vw, 48px);
+}
+
+/* ================================================================
+   Domain filter tabs
+   ================================================================ */
+
+.ewo-sf-tabs-wrap {
+	margin-bottom: 24px;
+	overflow-x: auto;
+	padding-bottom: 2px;
+	scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+	scrollbar-width: thin;
+}
+
+.ewo-sf-tabs {
+	display: flex;
+	gap: 6px;
+	min-width: max-content;
+}
+
+.ewo-sf-tab {
+	align-items: center;
+	background: rgba(255, 255, 255, 0.04);
+	border: 1px solid rgba(216, 224, 234, 0.12);
+	border-radius: 20px;
+	color: var(--ewo-muted);
+	cursor: pointer;
+	display: inline-flex;
+	font-size: 0.8rem;
+	font-weight: 600;
+	gap: 6px;
+	letter-spacing: 0.02em;
+	padding: 6px 14px;
+	transition: background 150ms ease, border-color 150ms ease, color 150ms ease;
+	white-space: nowrap;
+}
+
+.ewo-sf-tab:hover {
+	background: rgba(255, 255, 255, 0.08);
+	border-color: rgba(216, 224, 234, 0.3);
+	color: var(--ewo-white);
+}
+
+.ewo-sf-tab--active {
+	background: var(--ewo-gold);
+	border-color: var(--ewo-gold);
+	color: #160e00;
+}
+
+.ewo-sf-tab--active:hover {
+	background: #ddb050;
+	border-color: #ddb050;
+	color: #160e00;
+}
+
+.ewo-sf-tab-count {
+	background: rgba(0, 0, 0, 0.18);
+	border-radius: 10px;
+	font-size: 0.68rem;
+	font-variant-numeric: tabular-nums;
+	padding: 1px 6px;
+}
+
+/* ================================================================
+   Feed card grid
+   ================================================================ */
+
+.ewo-sf-grid {
+	align-items: stretch;
+	display: grid;
+	gap: 16px;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+@media (max-width: 960px) {
+	.ewo-sf-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 580px) {
+	.ewo-sf-grid { grid-template-columns: 1fr; }
+}
+
+/* ================================================================
+   Feed card
+   ================================================================ */
+
+.ewo-sf-card {
+	background: linear-gradient(160deg, rgba(16, 35, 61, 0.7) 0%, rgba(5, 14, 27, 0.97) 100%);
+	border: 1px solid var(--ewo-border);
+	border-radius: 10px;
+	display: flex;
+	flex-direction: column;
+	padding: 20px 22px 18px;
+	transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+}
+
+.ewo-sf-card:hover {
+	border-color: rgba(215, 168, 75, 0.3);
+	box-shadow: 0 14px 44px rgba(0, 0, 0, 0.28);
+	transform: translateY(-2px);
+}
+
+/* ----------------------------------------------------------------
+   1. Breadcrumb (top)
+   ---------------------------------------------------------------- */
+
+.ewo-sf-card-header {
+	align-items: flex-start;
+	display: flex;
+	justify-content: space-between;
+	gap: 8px;
+	margin-bottom: 10px;
+}
+
+.ewo-sf-breadcrumb {
+	align-items: center;
+	display: flex;
+	flex-wrap: wrap;
+	font-size: 0.72rem;
+	gap: 2px 4px;
+	letter-spacing: 0.03em;
+	line-height: 1.4;
+}
+
+.ewo-sf-bc-domain,
+.ewo-sf-bc-domain:link,
+.ewo-sf-bc-domain:visited {
+	color: var(--ewo-gold);
+	font-weight: 700;
+	text-decoration: none;
+	transition: color 140ms ease;
+}
+
+.ewo-sf-bc-domain:hover,
+.ewo-sf-bc-domain:focus {
+	color: var(--ewo-white);
+	text-decoration: none;
+}
+
+.ewo-sf-bc-sep {
+	color: rgba(174, 187, 204, 0.3);
+	font-size: 0.76rem;
+}
+
+.ewo-sf-bc-sub {
+	color: rgba(174, 187, 204, 0.65);
+	font-weight: 500;
+}
+
+.ewo-sf-rss-icon {
+	color: rgba(215, 168, 75, 0.35);
+	flex: 0 0 auto;
+	line-height: 1;
+	margin-top: 1px;
+	transition: color 140ms ease;
+}
+
+.ewo-sf-card:hover .ewo-sf-rss-icon {
+	color: rgba(215, 168, 75, 0.7);
+}
+
+/* ----------------------------------------------------------------
+   2. Title
+   ---------------------------------------------------------------- */
+
+.ewo-sf-card-title {
+	font-family: Georgia, "Times New Roman", serif;
+	font-size: 0.96rem;
+	font-weight: normal;
+	line-height: 1.5;
+	margin: 0 0 8px;
+}
+
+.ewo-sf-card-title a,
+.ewo-sf-card-title a:link,
+.ewo-sf-card-title a:visited {
+	color: var(--ewo-white);
+	text-decoration: none;
+	transition: color 140ms ease;
+}
+
+.ewo-sf-card-title a:hover,
+.ewo-sf-card-title a:focus {
+	color: var(--ewo-gold);
+	text-decoration: none;
+}
+
+/* ----------------------------------------------------------------
+   3. Meta: source · date  (sits directly below title)
+   ---------------------------------------------------------------- */
+
+.ewo-sf-card-meta {
+	align-items: center;
+	display: flex;
+	flex-wrap: wrap;
+	font-size: 0.72rem;
+	gap: 3px;
+	margin: 0 0 12px;
+}
+
+.ewo-sf-source {
+	color: rgba(174, 187, 204, 0.75);
+	font-weight: 600;
+}
+
+.ewo-sf-dot {
+	color: rgba(174, 187, 204, 0.22);
+}
+
+.ewo-sf-time {
+	color: rgba(174, 187, 204, 0.45);
+}
+
+/* ----------------------------------------------------------------
+   4. Snippet
+   ---------------------------------------------------------------- */
+
+.ewo-sf-snippet {
+	color: rgba(216, 224, 234, 0.5);
+	flex: 1;
+	font-size: 0.8rem;
+	line-height: 1.6;
+	margin: 0;
+}
+
+/* ----------------------------------------------------------------
+   5. Keyword tag (pushed to bottom)
+   ---------------------------------------------------------------- */
+
+.ewo-sf-tags {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px;
+	margin-top: auto;
+	padding-top: 12px;
+}
+
+.ewo-sf-tag {
+	background: rgba(255, 255, 255, 0.05);
+	border: 1px solid rgba(216, 224, 234, 0.15);
+	border-radius: 3px;
+	color: rgba(174, 187, 204, 0.65);
+	font-size: 0.69rem;
+	letter-spacing: 0.02em;
+	max-width: 100%;
+	overflow: hidden;
+	padding: 2px 7px;
+	text-overflow: ellipsis;
+	transition: border-color 140ms ease, color 140ms ease;
+	white-space: nowrap;
+}
+
+.ewo-sf-tag:hover {
+	border-color: rgba(215, 168, 75, 0.4);
+	color: var(--ewo-muted);
+}
+
+/* ================================================================
+   JS visibility — added/removed by smart-feed.js
+   ================================================================ */
+
+.ewo-sf-invisible {
+	display: none !important;
+}
+
+/* ================================================================
+   Empty states
+   ================================================================ */
+
+.ewo-sf-empty {
+	color: var(--ewo-muted);
+	font-size: 0.9rem;
+	font-style: italic;
+	padding: 24px 0;
+	text-align: center;
+}
+
+.ewo-sf-empty-page {
+	padding: 48px 0;
+	text-align: center;
+}
+
+.ewo-sf-empty-page p {
+	color: var(--ewo-muted);
+	font-size: 1rem;
+	margin-bottom: 24px;
+}
+
+/* ================================================================
+   Load More
+   ================================================================ */
+
+.ewo-sf-load-more-wrap {
+	padding-top: 32px;
+	text-align: center;
+}
+
+.ewo-sf-load-more-btn {
+	background: transparent;
+	border: 1px solid rgba(216, 224, 234, 0.18);
+	border-radius: 6px;
+	color: var(--ewo-muted);
+	cursor: pointer;
+	font-size: 0.86rem;
+	font-weight: 600;
+	letter-spacing: 0.04em;
+	padding: 12px 36px;
+	transition: background 150ms ease, border-color 150ms ease, color 150ms ease;
+}
+
+.ewo-sf-load-more-btn:hover {
+	background: rgba(255, 255, 255, 0.05);
+	border-color: rgba(255, 255, 255, 0.25);
+	color: var(--ewo-white);
+}

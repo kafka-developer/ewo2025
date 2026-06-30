@@ -5,12 +5,24 @@
  * @package EWO_2025
  */
 
+/*
+ * Strict build tracking.
+ *
+ * EWO_THEME_VERSION — semantic version, kept in sync with the "Version:" header in style.css.
+ * EWO_THEME_BUILD   — build ID in the form YYYYMMDD-NN. MUST be bumped every time the
+ *                     distributable ZIP is rebuilt (enforced by build-theme.sh). See CHANGELOG.md.
+ */
 if ( ! defined( 'EWO_THEME_VERSION' ) ) {
 	define( 'EWO_THEME_VERSION', '0.3.8' );
 }
 
+if ( ! defined( 'EWO_THEME_BUILD' ) ) {
+	define( 'EWO_THEME_BUILD', '20260626-22' );
+}
+
 if ( ! defined( 'EWO_2025_VERSION' ) ) {
-	define( 'EWO_2025_VERSION', EWO_THEME_VERSION );
+	// Combined semantic version + build ID, used as the cache-busting token for CSS/JS assets.
+	define( 'EWO_2025_VERSION', EWO_THEME_VERSION . '+' . EWO_THEME_BUILD );
 }
 
 // Homepage content types and data providers.
@@ -18,6 +30,18 @@ require_once get_template_directory() . '/inc/ewo-content-types.php';
 require_once get_template_directory() . '/inc/ewo-homepage.php';
 require_once get_template_directory() . '/inc/ewo-social-links.php';
 require_once get_template_directory() . '/inc/ewo-sidebar.php';
+require_once get_template_directory() . '/inc/ewo-book.php';
+require_once get_template_directory() . '/inc/ewo-dynamic-sections.php';
+require_once get_template_directory() . '/inc/ewo-feature-visibility.php';
+require_once get_template_directory() . '/inc/ewo-homepage-settings.php';
+require_once get_template_directory() . '/inc/ewo-custom-cards.php';
+
+// Strategic Domains public page data layer.
+require_once get_template_directory() . '/inc/ewo-sfd-data.php';
+
+// Homepage Section Renderers and Section Order Manager.
+require_once get_template_directory() . '/inc/ewo-section-renderers.php';
+require_once get_template_directory() . '/inc/ewo-section-order.php';
 
 if ( ! function_exists( 'ewo_2025_setup' ) ) {
 	/**
@@ -146,9 +170,10 @@ function ewo_2025_admin_bar_theme_version( $wp_admin_bar ) {
 		array(
 			'id'    => 'ewo-2025-theme-version',
 			'title' => sprintf(
-				/* translators: %s: Theme version number. */
-				esc_html__( 'EWO Theme v%s', 'ewo-2025' ),
-				esc_html( EWO_THEME_VERSION )
+				/* translators: 1: Theme semantic version. 2: Build ID. */
+				esc_html__( 'EWO Theme v%1$s / Build %2$s', 'ewo-2025' ),
+				esc_html( EWO_THEME_VERSION ),
+				esc_html( EWO_THEME_BUILD )
 			),
 			'href'  => admin_url( 'customize.php' ),
 			'meta'  => array(
@@ -367,3 +392,323 @@ if ( ! function_exists( 'ewo_2025_is_subscriber_only_post' ) ) {
 		return str_word_count( $text ) <= 80;
 	}
 }
+
+/* ==========================================================================
+   Strategic Domains public page routing
+   ========================================================================== */
+
+/**
+ * Register the ewo_domain_slug query variable so WP passes it through.
+ *
+ * @param string[] $vars Registered query vars.
+ * @return string[]
+ */
+function ewo_2025_sfd_query_vars( $vars ) {
+	$vars[] = 'ewo_domain_slug';
+	return $vars;
+}
+add_filter( 'query_vars', 'ewo_2025_sfd_query_vars' );
+
+/**
+ * Add a rewrite rule so /strategic-domains/{slug}/ resolves to the page
+ * template with the ewo_domain_slug var set.
+ *
+ * Must run on 'init' so the main page already exists and has its ID.
+ */
+function ewo_2025_sfd_rewrite_rules() {
+	$page = get_page_by_path( 'strategic-domains' );
+	if ( $page ) {
+		add_rewrite_rule(
+			'^strategic-domains/([^/]+)/?$',
+			'index.php?page_id=' . $page->ID . '&ewo_domain_slug=$matches[1]',
+			'top'
+		);
+	}
+}
+add_action( 'init', 'ewo_2025_sfd_rewrite_rules' );
+
+/**
+ * Auto-create the /strategic-domains/ page on first activation so the URL
+ * resolves immediately without manual setup in WP Admin → Pages.
+ *
+ * Tracked by a simple option so it only runs once.
+ */
+function ewo_2025_maybe_create_sfd_page() {
+	if ( get_option( 'ewo_2025_sfd_page_v1' ) ) {
+		return;
+	}
+
+	if ( ! get_page_by_path( 'strategic-domains' ) ) {
+		wp_insert_post(
+			array(
+				'post_title'   => __( 'Strategic Domains', 'ewo-2025' ),
+				'post_name'    => 'strategic-domains',
+				'post_status'  => 'publish',
+				'post_type'    => 'page',
+				'post_content' => '',
+			)
+		);
+		flush_rewrite_rules( false );
+	}
+
+	update_option( 'ewo_2025_sfd_page_v1', true, false );
+}
+add_action( 'after_setup_theme', 'ewo_2025_maybe_create_sfd_page' );
+
+/**
+ * Enqueue the strategic-domains stylesheet only on the relevant pages.
+ */
+function ewo_2025_sfd_enqueue_styles() {
+	if ( is_page( 'strategic-domains' ) || '' !== (string) get_query_var( 'ewo_domain_slug' ) ) {
+		wp_enqueue_style(
+			'ewo-strategic-domains',
+			get_template_directory_uri() . '/assets/css/strategic-domains.css',
+			array( 'ewo-2025-main' ),
+			EWO_2025_VERSION
+		);
+	}
+}
+add_action( 'wp_enqueue_scripts', 'ewo_2025_sfd_enqueue_styles' );
+
+/* ==========================================================================
+   Smart Feed public page
+   ========================================================================== */
+
+/**
+ * Auto-create the /smart-feed/ page on first run.
+ */
+function ewo_2025_maybe_create_smart_feed_page() {
+	if ( get_option( 'ewo_2025_sf_page_v1' ) ) {
+		return;
+	}
+	if ( ! get_page_by_path( 'smart-feed' ) ) {
+		wp_insert_post(
+			array(
+				'post_title'   => __( 'Smart Feed', 'ewo-2025' ),
+				'post_name'    => 'smart-feed',
+				'post_status'  => 'publish',
+				'post_type'    => 'page',
+				'post_content' => '',
+			)
+		);
+		flush_rewrite_rules( false );
+	}
+	update_option( 'ewo_2025_sf_page_v1', true, false );
+}
+add_action( 'after_setup_theme', 'ewo_2025_maybe_create_smart_feed_page' );
+
+/**
+ * Enqueue Smart Feed stylesheet + script on both /smart-feed/ and /smartfeed/.
+ */
+function ewo_2025_sf_enqueue_assets() {
+	if ( is_page( 'smart-feed' ) || is_page( 'smartfeed' ) ) {
+		wp_enqueue_style(
+			'ewo-smart-feed',
+			get_template_directory_uri() . '/assets/css/smart-feed.css',
+			array( 'ewo-2025-main' ),
+			EWO_2025_VERSION
+		);
+		wp_enqueue_script(
+			'ewo-smart-feed',
+			get_template_directory_uri() . '/assets/js/smart-feed.js',
+			array(),
+			EWO_2025_VERSION,
+			true
+		);
+	}
+}
+add_action( 'wp_enqueue_scripts', 'ewo_2025_sf_enqueue_assets' );
+
+/* ==========================================================================
+   Public Predictions page routing
+   ========================================================================== */
+
+/**
+ * Register ewo_prediction_id query var for detail URLs.
+ *
+ * @param string[] $vars Registered vars.
+ * @return string[]
+ */
+function ewo_2025_pred_query_vars( $vars ) {
+	$vars[] = 'ewo_prediction_id';
+	return $vars;
+}
+add_filter( 'query_vars', 'ewo_2025_pred_query_vars' );
+
+/**
+ * Rewrite rule: /predictions/{id}/ → page template with ewo_prediction_id.
+ */
+function ewo_2025_pred_rewrite_rules() {
+	$page = get_page_by_path( 'predictions' );
+	if ( $page ) {
+		add_rewrite_rule(
+			'^predictions/(\d+)/?$',
+			'index.php?page_id=' . $page->ID . '&ewo_prediction_id=$matches[1]',
+			'top'
+		);
+	}
+}
+add_action( 'init', 'ewo_2025_pred_rewrite_rules' );
+
+/**
+ * Auto-create the /predictions/ page on first load.
+ */
+function ewo_2025_maybe_create_predictions_page() {
+	if ( get_option( 'ewo_2025_predictions_page_v1' ) ) {
+		return;
+	}
+	if ( ! get_page_by_path( 'predictions' ) ) {
+		wp_insert_post( array(
+			'post_title'   => __( 'Strategic Predictions', 'ewo-2025' ),
+			'post_name'    => 'predictions',
+			'post_status'  => 'publish',
+			'post_type'    => 'page',
+			'post_content' => '',
+		) );
+		flush_rewrite_rules( false );
+	}
+	update_option( 'ewo_2025_predictions_page_v1', true, false );
+}
+add_action( 'after_setup_theme', 'ewo_2025_maybe_create_predictions_page' );
+
+/* ==========================================================================
+   Public Community Wall page routing
+   ========================================================================== */
+
+/**
+ * Register query vars for Community Wall detail and category URLs.
+ *
+ * @param string[] $vars Registered vars.
+ * @return string[]
+ */
+function ewo_2025_cw_query_vars( $vars ) {
+	$vars[] = 'ewo_cw_slug';
+	$vars[] = 'ewo_cw_cat_slug';
+	return $vars;
+}
+add_filter( 'query_vars', 'ewo_2025_cw_query_vars' );
+
+/**
+ * Rewrite rules for Community Wall URLs.
+ *
+ * Category rule is added last so it ends up FIRST in the rules array
+ * (both use 'top', last-registered wins), avoiding the catch-all slug
+ * rule from swallowing category URLs.
+ */
+function ewo_2025_cw_rewrite_rules() {
+	$page = get_page_by_path( 'community-wall' );
+	if ( ! $page ) {
+		return;
+	}
+	$pid = $page->ID;
+	// Post slug rule (added first → will be lower in priority).
+	add_rewrite_rule(
+		'^community-wall/([^/]+)/?$',
+		'index.php?page_id=' . $pid . '&ewo_cw_slug=$matches[1]',
+		'top'
+	);
+	// Category rule (added second → prepended above post slug rule).
+	add_rewrite_rule(
+		'^community-wall/category/([^/]+)/?$',
+		'index.php?page_id=' . $pid . '&ewo_cw_cat_slug=$matches[1]',
+		'top'
+	);
+}
+add_action( 'init', 'ewo_2025_cw_rewrite_rules' );
+
+/**
+ * Auto-create the /community-wall/ page on first load.
+ */
+function ewo_2025_maybe_create_community_wall_page() {
+	if ( get_option( 'ewo_2025_cw_page_v1' ) ) {
+		return;
+	}
+	if ( ! get_page_by_path( 'community-wall' ) ) {
+		wp_insert_post( array(
+			'post_title'   => __( 'Community Wall', 'ewo-2025' ),
+			'post_name'    => 'community-wall',
+			'post_status'  => 'publish',
+			'post_type'    => 'page',
+			'post_content' => '',
+		) );
+		flush_rewrite_rules( false );
+	}
+	update_option( 'ewo_2025_cw_page_v1', true, false );
+}
+add_action( 'after_setup_theme', 'ewo_2025_maybe_create_community_wall_page' );
+
+/**
+ * Enqueue Community Wall CSS on /community-wall/ and /community-wall/{slug}/.
+ */
+function ewo_2025_cw_enqueue_styles() {
+	if ( is_page( 'community-wall' ) || '' !== (string) get_query_var( 'ewo_cw_slug' ) || '' !== (string) get_query_var( 'ewo_cw_cat_slug' ) ) {
+		wp_enqueue_style(
+			'ewo-community-wall-front',
+			get_template_directory_uri() . '/assets/css/community-wall.css',
+			array( 'ewo-2025-main' ),
+			EWO_2025_VERSION
+		);
+	}
+}
+add_action( 'wp_enqueue_scripts', 'ewo_2025_cw_enqueue_styles' );
+
+/* ==========================================================================
+   End Community Wall routing
+   ========================================================================== */
+
+/**
+ * Enqueue predictions CSS on /predictions/ and /predictions/{id}/.
+ */
+function ewo_2025_pred_enqueue_styles() {
+	if ( is_page( 'predictions' ) || '' !== (string) get_query_var( 'ewo_prediction_id' ) ) {
+		wp_enqueue_style(
+			'ewo-predictions-front',
+			get_template_directory_uri() . '/assets/css/predictions.css',
+			array( 'ewo-2025-main' ),
+			EWO_2025_VERSION
+		);
+	}
+}
+add_action( 'wp_enqueue_scripts', 'ewo_2025_pred_enqueue_styles' );
+
+/* ==========================================================================
+   Book public page
+   ========================================================================== */
+
+/**
+ * Auto-create the /book/ page so the menu item resolves immediately.
+ */
+function ewo_2025_maybe_create_book_page() {
+	if ( get_option( 'ewo_2025_book_page_v1' ) ) {
+		return;
+	}
+	if ( ! get_page_by_path( 'book' ) ) {
+		wp_insert_post(
+			array(
+				'post_title'   => __( 'Book', 'ewo-2025' ),
+				'post_name'    => 'book',
+				'post_status'  => 'publish',
+				'post_type'    => 'page',
+				'post_content' => '',
+			)
+		);
+		flush_rewrite_rules( false );
+	}
+	update_option( 'ewo_2025_book_page_v1', true, false );
+}
+add_action( 'after_setup_theme', 'ewo_2025_maybe_create_book_page' );
+
+/**
+ * Enqueue book page stylesheet only on /book/.
+ */
+function ewo_2025_book_enqueue_styles() {
+	if ( is_page( 'book' ) ) {
+		wp_enqueue_style(
+			'ewo-book-front',
+			get_template_directory_uri() . '/assets/css/book.css',
+			array( 'ewo-2025-main' ),
+			EWO_2025_VERSION
+		);
+	}
+}
+add_action( 'wp_enqueue_scripts', 'ewo_2025_book_enqueue_styles' );

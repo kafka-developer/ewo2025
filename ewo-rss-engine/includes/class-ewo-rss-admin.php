@@ -57,6 +57,7 @@ class EWO_RSS_Admin {
 	 */
 	public function init() {
 		add_action( 'admin_menu', array( $this, 'register_menu' ) );
+		add_action( 'admin_menu', array( $this, 'sort_menu' ), 999 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 		add_action( 'admin_post_' . self::RUN_ACTION, array( $this, 'handle_run' ) );
 		add_action( 'admin_post_' . self::CLEAR_ACTION, array( $this, 'handle_clear_logs' ) );
@@ -93,6 +94,48 @@ class EWO_RSS_Admin {
 			self::CAPABILITY,
 			self::LOGS_SLUG,
 			array( $this, 'render_logs' )
+		);
+	}
+
+	/**
+	 * Reorder the submenu to the desired position:
+	 * Dashboard → Feed Sources → Sources → Strategic Domains → Import Logs → Feed Health → Duplicates → Attribution
+	 *
+	 * Runs at admin_menu priority 999 so all pages are already registered.
+	 */
+	public function sort_menu() {
+		global $submenu;
+
+		$slug = self::MENU_SLUG;
+		if ( empty( $submenu[ $slug ] ) ) {
+			return;
+		}
+
+		$order = array(
+			self::MENU_SLUG,
+			'edit.php?post_type=ewo_rss_source',
+			'post-new.php?post_type=ewo_rss_source',
+			'ewo-rss-sources',
+			'ewo-rss-domains',
+			self::LOGS_SLUG,
+			'ewo-rss-health',
+			'ewo-rss-duplicates',
+			'ewo-rss-attribution',
+		);
+
+		usort(
+			$submenu[ $slug ],
+			static function ( $a, $b ) use ( $order ) {
+				$pa = array_search( $a[2], $order, true );
+				$pb = array_search( $b[2], $order, true );
+				if ( false === $pa ) {
+					$pa = 99;
+				}
+				if ( false === $pb ) {
+					$pb = 99;
+				}
+				return $pa - $pb;
+			}
 		);
 	}
 
